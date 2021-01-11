@@ -78,6 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)\..\Share;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -139,10 +140,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bulls_and_cows_logic.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="NetworkInterface.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bulls_and_cows_logic.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="NetworkInterface.h" />
   </ItemGroup>
