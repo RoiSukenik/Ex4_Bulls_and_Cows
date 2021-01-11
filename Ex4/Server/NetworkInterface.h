@@ -20,15 +20,15 @@ typedef struct _SOCKET_INFO
 
 int Initialize_WinSock();
 
-int Close_WinSock();
+char* Close_WinSock();
 
 SOCKET Create_Socket();
 
-int Close_Socket(SOCKET sock);
+char* Close_Socket(SOCKET sock);
 
-int Bind_Socket(SOCKET sock, const struct sockaddr* name, int namelen);
+char* Bind_Socket(SOCKET sock, const struct sockaddr* name, int namelen);
 
-int Listen_to_Socket(SOCKET sock, int backlog);
+char* Listen_to_Socket(SOCKET sock, int backlog);
 
 SOCKET Accept_Socket(SOCKET sock, const struct sockaddr* addr, int* addrlen);
 
