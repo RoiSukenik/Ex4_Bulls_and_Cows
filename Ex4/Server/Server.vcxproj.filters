@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shared Source Files">
-      <UniqueIdentifier>{36fd488b-b484-427c-8968-81215e9bf852}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shared Header Files">
-      <UniqueIdentifier>{a5a35930-d95b-473a-b199-2cdee64db410}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -28,7 +22,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NetworkInterface.c">
-      <Filter>Shared Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -39,7 +33,7 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="NetworkInterface.h">
-      <Filter>Shared Header Files</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
