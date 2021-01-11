@@ -24,6 +24,9 @@
     <ClCompile Include="NetworkInterface.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WorkManger.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -33,7 +36,10 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="NetworkInterface.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

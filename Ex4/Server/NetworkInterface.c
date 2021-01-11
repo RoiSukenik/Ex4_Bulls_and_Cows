@@ -1,6 +1,6 @@
 #include "NetworkInterface.h"
 
-int Initialize_WinSock() 
+char* Initialize_WinSock() 
 {
 	WSADATA wsa_data;
 	int result;
@@ -11,8 +11,9 @@ int Initialize_WinSock()
 	{
 		retval = printf_s("WSAStartup failed: %d\n", result);
 		if (retval < 0) printf_s("failed to print error\n");
-		return 1;
+		return STATUS_CODE_FAILURE;
 	}
+	return STATUS_CODE_SUCSESS;
 }
 
 char* Close_WinSock()
@@ -24,17 +25,18 @@ char* Close_WinSock()
 	if (result != 0) {
 		retval = printf_s("WSACleanup failed: %d\n", result);
 		if (retval < 0) printf_s("failed to print error\n");
-		return STATUS_CODE_SUCSESS;
+		return STATUS_CODE_FAILURE;
 	}
+	return  STATUS_CODE_SUCSESS;
 
 }
 
-SOCKET Create_Socket(SOCKET_INFO info)
+SOCKET Create_Socket()
 {
 	SOCKET sock		= INVALID_SOCKET;
-	int iFamily		= info.iFamily;
-	int iType		= info.iType;
-	int iProtocol	= info.iProtocol;
+	int iFamily		= AF_INET;
+	int iType		= SOCK_STREAM;
+	int iProtocol	= IPPROTO_TCP;
 	int iResult		= 0;
 
 	int retval = 0;
@@ -65,11 +67,20 @@ char* Close_Socket(SOCKET sock)
 	return STATUS_CODE_SUCSESS;
 }
 
-char* Bind_Socket(SOCKET sock, const struct sockaddr* name, int namelen) 
+char* Bind_Socket(SOCKET sock ,int port ) 
 {
 	int retval = 0;
 	int iResult;
-	iResult = bind(sock, (SOCKADDR*)&name, sizeof(namelen));
+
+	
+	SOCKADDR_IN	service;
+
+	service.sin_family = AF_INET;
+	service.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
+	service.sin_port = htons(port);
+
+
+	iResult = bind(sock, (SOCKADDR*)&service, sizeof(service));
 	if (iResult == SOCKET_ERROR) {
 		retval = wprintf_s(L"bind failed with error %u\n", WSAGetLastError());
 		if (retval < 0) printf_s("failed to print error\n");

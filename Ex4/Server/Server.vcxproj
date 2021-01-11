@@ -143,11 +143,13 @@
     <ClCompile Include="bulls_and_cows_logic.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="NetworkInterface.c" />
+    <ClCompile Include="WorkManger.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bulls_and_cows_logic.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="NetworkInterface.h" />
+    <ClInclude Include="WorkManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

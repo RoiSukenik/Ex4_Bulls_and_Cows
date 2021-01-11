@@ -7,8 +7,10 @@
 #include <ws2tcpip.h>
 #include <string.h>
 
+
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
+const char* SERVER_ADDRESS_STR = "127.0.0.1";
 
 typedef struct _SOCKET_INFO
 {
@@ -18,7 +20,7 @@ typedef struct _SOCKET_INFO
 }SOCKET_INFO;
 
 
-int Initialize_WinSock();
+char* Initialize_WinSock();
 
 char* Close_WinSock();
 
@@ -26,7 +28,7 @@ SOCKET Create_Socket();
 
 char* Close_Socket(SOCKET sock);
 
-char* Bind_Socket(SOCKET sock, const struct sockaddr* name, int namelen);
+char* Bind_Socket(SOCKET sock, int port);
 
 char* Listen_to_Socket(SOCKET sock, int backlog);
 
