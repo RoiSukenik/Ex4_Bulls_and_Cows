@@ -32,13 +32,13 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bulls_and_cows_logic.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="NetworkInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WorkManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bulls_and_cows_logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

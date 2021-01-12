@@ -12,7 +12,7 @@ char* Manage_Server(char* argv[])
 	retval = Listen_to_Socket(MainSocket, SOMAXCONN);
 	for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
 		ThreadHandles[Ind] = NULL;
-	for (Loop = 0; Loop < MAX_LOOPS; Loop++)
+	while(TRUE)
 	{
 		SOCKET AcceptSocket = Accept_Socket(MainSocket, NULL, NULL);
 		Ind = FindFirstUnusedThreadSlot();
@@ -20,6 +20,8 @@ char* Manage_Server(char* argv[])
 		{
 			printf("No slots available for client, dropping the connection.\n");
 			Close_Socket(AcceptSocket); //Closing the socket, dropping the connection.
+			//FIXME - Stop listening.
+			break;
 		}
 		else
 		{
@@ -35,9 +37,11 @@ char* Manage_Server(char* argv[])
 				0,
 				NULL
 			);
+			Ind = Ind + 1;
 		}
 
 	}
+
 
 }
 static int FindFirstUnusedThreadSlot()
@@ -66,5 +70,8 @@ static int FindFirstUnusedThreadSlot()
 }
 
 static DWORD ServiceThread(SOCKET* t_socket) {
+	
+
+
 
 }

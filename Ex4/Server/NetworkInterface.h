@@ -3,10 +3,10 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
+#include <stdio.h>
 #include <winsock2.h>
-#include <ws2tcpip.h>
 #include <string.h>
-
+#include <stdbool.h>
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0

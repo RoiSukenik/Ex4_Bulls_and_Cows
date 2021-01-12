@@ -64,7 +64,6 @@ int check_cows(char* secret[GAME_NUM_LENGHT_PLUS_EOS], char* guess[GAME_NUM_LENG
 int check_bulls(char* secret[GAME_NUM_LENGHT_PLUS_EOS], char* guess[GAME_NUM_LENGHT_PLUS_EOS]);
 
 
-char*
 
 
 
