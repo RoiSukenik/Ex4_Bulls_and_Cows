@@ -34,8 +34,6 @@ char* Listen_to_Socket(SOCKET sock, int backlog);
 
 SOCKET Accept_Socket(SOCKET sock, const struct sockaddr* addr, int* addrlen);
 
-char* Send_Data(SOCKET sock, const char* buf, int len, int flags);
 
-char* Recive_Data(SOCKET ConnectSocket, char* recvbuf, int recvbuflen, int flags);
 
 #endif // !NETWORK_INTERFACE_DOT_H

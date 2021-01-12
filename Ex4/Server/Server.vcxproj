@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)\..\Shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -140,12 +141,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="bulls_and_cows_logic.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="NetworkInterface.c" />
     <ClCompile Include="WorkManger.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\Downloads\IspRecitation10_Examples\IspRecitation10_Examples\Shared\SocketSendRecvTools.h" />
     <ClInclude Include="bulls_and_cows_logic.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="NetworkInterface.h" />

@@ -3,12 +3,14 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
+#include <stdio.h>
 #include <winsock2.h>
-#include <ws2tcpip.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
+const char* SERVER_ADDRESS_STR = "127.0.0.1";
 
 typedef struct _SOCKET_INFO
 {
@@ -18,7 +20,7 @@ typedef struct _SOCKET_INFO
 }SOCKET_INFO;
 
 
-int Initialize_WinSock();
+char* Initialize_WinSock();
 
 char* Close_WinSock();
 
@@ -26,14 +28,12 @@ SOCKET Create_Socket();
 
 char* Close_Socket(SOCKET sock);
 
-char* Bind_Socket(SOCKET sock, const struct sockaddr* name, int namelen);
+char* Bind_Socket(SOCKET sock, int port);
 
 char* Listen_to_Socket(SOCKET sock, int backlog);
 
 SOCKET Accept_Socket(SOCKET sock, const struct sockaddr* addr, int* addrlen);
 
-char* Send_Data(SOCKET sock, const char* buf, int len, int flags);
 
-char* Recive_Data(SOCKET ConnectSocket, char* recvbuf, int recvbuflen, int flags);
 
 #endif // !NETWORK_INTERFACE_DOT_H

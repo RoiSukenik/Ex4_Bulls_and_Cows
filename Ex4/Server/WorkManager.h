@@ -2,7 +2,7 @@
 #define WORK_MANAGER_DOT_H
 
 #include "NetworkInterface.h"
-
+#include "SocketSendRecvTools.h"
 
 #define NUM_OF_WORKER_THREADS 2
 #define MAX_LOOPS 3
