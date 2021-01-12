@@ -71,6 +71,8 @@ static int FindFirstUnusedThreadSlot()
 
 static DWORD ServiceThread(SOCKET* t_socket) {
 	
+	TransferResult_t SendRes;
+	TransferResult_t RecvRes;
 
 
 
