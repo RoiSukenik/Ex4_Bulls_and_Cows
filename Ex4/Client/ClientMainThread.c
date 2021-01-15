@@ -44,6 +44,9 @@ Last updated by Amnon Drory, Winter 2011.
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
+char* global_serverIP;
+char* global_serverPort;
+char* global_username;
 SOCKET m_socket;
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
@@ -75,7 +78,7 @@ static DWORD RecvDataThread(void)
 			printf("Choose what to do next:\n1. Play against another client\n2. Quit\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_DENIED) != NULL) {
-			printf("Server on %s:%s denied the connection request.\nChoose what to do next:\n1. Try to reconnect\n2. Exit\n",server_IP,server_PORT);
+			printf("Server on %s:%s denied the connection request.\nChoose what to do next:\n1. Try to reconnect\n2. Exit\n", global_serverIP, global_serverPort);
 		}
 		else if (strstr(AcceptedStr, SERVER_INVITE) != NULL) {
 			printf("Game is on!\n");
@@ -93,13 +96,13 @@ static DWORD RecvDataThread(void)
 			printf("\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_DRAW) != NULL) {
-			printf("\n");
+			printf("It’s a tie\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_NO_OPPONENTS) != NULL) {
 			printf("\n"); // HANDLE THIS !
 		}
 		else if (strstr(AcceptedStr, SERVER_OPPONENT_QUIT) != NULL) {
-			printf("\n");
+			printf("Opponent quit.\n");
 		}
 		else {
 			printf("did not recieve an expected message_type.\n");
@@ -151,6 +154,11 @@ static DWORD SendDataThread(void)
 
 int MainClient(char* argv[])
 {
+	char* global_serverIP	 = argv[1];
+	char* global_serverPort	 = argv[2];
+	int	serv_port	    = atoi(argv[2]);
+	char* global_username	 = argv[3];
+
 	SOCKADDR_IN clientService;
 	HANDLE hThread[2];
 
@@ -189,8 +197,8 @@ int MainClient(char* argv[])
 
 	 //Create a sockaddr_in object clientService and set  values.
 	clientService.sin_family = AF_INET;
-	clientService.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR); //Setting the IP address to connect to
-	clientService.sin_port = htons(SERVER_PORT); //Setting the port to connect to.
+	clientService.sin_addr.s_addr = inet_addr(global_serverIP); //Setting the IP address to connect to
+	clientService.sin_port = htons(serv_port); //Setting the port to connect to.
 
 	/*
 		AF_INET is the Internet address family.
@@ -214,7 +222,7 @@ int MainClient(char* argv[])
 			}
 		}
 	}
-	printf("Connected to server on %s:%s\n", SERVER_ADDRESS_STR, SERVER_PORT);
+	printf("Connected to server on %s:%s\n", global_serverIP, serv_port);
 	char* send_me = CreateUsernameClientSend(argv[4]);
 	TransferResult_t SendRes = SendString(send_me, m_socket);
 	if (SendRes == TRNS_FAILED)
