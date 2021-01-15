@@ -30,6 +30,9 @@
     <ClCompile Include="..\Server\NetworkInterface.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ClientMainThread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">

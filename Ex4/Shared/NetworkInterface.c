@@ -13,7 +13,7 @@ char* Initialize_WinSock()
 		if (retval < 0) printf_s("failed to print error\n");
 		return STATUS_CODE_FAILURE;
 	}
-	return STATUS_CODE_SUCSESS;
+	return STATUS_CODE_SUCSESS; 
 }
 
 char* Close_WinSock()

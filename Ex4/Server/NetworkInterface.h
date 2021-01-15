@@ -11,6 +11,7 @@
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
 const char* SERVER_ADDRESS_STR = "127.0.0.1";
+const char* SERVER_PORT	= "1111"; //  ???
 
 typedef struct _SOCKET_INFO
 {
