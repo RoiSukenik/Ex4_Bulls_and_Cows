@@ -33,6 +33,9 @@
     <ClCompile Include="ClientMainThread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Shared\MessageAPI.c">
+      <Filter>Shared Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -42,6 +45,9 @@
       <Filter>Shared Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Server\NetworkInterface.h">
+      <Filter>Shared Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\MessageAPI.h">
       <Filter>Shared Header Files</Filter>
     </ClInclude>
   </ItemGroup>
