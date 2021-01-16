@@ -8,4 +8,6 @@
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
 
+char* MessageParams(char* string);
+
 #endif // !MESSAGEAPI_DOT_H

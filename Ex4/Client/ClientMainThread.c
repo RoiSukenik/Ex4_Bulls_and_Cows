@@ -23,12 +23,11 @@ Last updated by Amnon Drory, Winter 2011.
 #define SERVER_NO_OPPONENTS			"SERVER_NO_OPPONENTS"
 #define SERVER_OPPONENT_QUIT		"SERVER_OPPONENT_QUIT"
 
-#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT"
+#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT\n"
 #define CLIENT_REQUEST				"CLIENT_REQUEST"
 #define CLIENT_VERSUS				"CLIENT_VERSUS"
 #define CLIENT_SETUP				"CLIENT_SETUP"
 #define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
-#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT"
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCCESS 0
@@ -40,6 +39,8 @@ Last updated by Amnon Drory, Winter 2011.
 
 #include "NetworkInterface.h"
 #include "SocketSendRecvTools.h"
+#include "MessageAPI.h"
+
 	// #include "SocketSendRecvTools.h"
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
@@ -49,6 +50,9 @@ char* global_serverPort;
 char* global_username;
 SOCKET m_socket;
 
+#define SETUP 0
+#define GUESS 1
+int global_client_state = SETUP;
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 //Reading data coming from the server
@@ -84,22 +88,38 @@ static DWORD RecvDataThread(void)
 			printf("Game is on!\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_SETUP_REQUSET) != NULL) {
+			global_client_state = SETUP;
 			printf("Choose your 4 digits:\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_PLAYER_MOVE_REQUEST) != NULL) {
+			global_client_state = GUESS;
 			printf("Choose your guess:\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_GAME_RESULTS) != NULL) {
-			printf("\n");
+			// get parameters
+			char *params = MessageParams(AcceptedStr);
+			if (params == STATUS_CODE_FAILURE) { return STATUS_CODE_FAILURE;}
+			// print
+			printf("Bulls: %s\nCows: %s\n%s played: %s\n", params[0], params[1], params[2], params[3]);
+			// free
+			for (int i = 0; i < 4; i++) {free(params[i]);}
+			free(params);
 		}
 		else if (strstr(AcceptedStr, SERVER_WIN) != NULL) {
-			printf("\n");
+			// get parameters
+			char* params = MessageParams(AcceptedStr);
+			if (params == STATUS_CODE_FAILURE) { return STATUS_CODE_FAILURE; }
+			// print
+			printf("%s won !\nopponents number was %s\n", params[0], params[1]);
+			// free
+			for (int i = 0; i < 2; i++) { free(params[i]); }
+			free(params);
 		}
 		else if (strstr(AcceptedStr, SERVER_DRAW) != NULL) {
 			printf("It’s a tie\n");
 		}
 		else if (strstr(AcceptedStr, SERVER_NO_OPPONENTS) != NULL) {
-			printf("\n"); // HANDLE THIS !
+			 // HANDLE THIS ! count to 30 ?
 		}
 		else if (strstr(AcceptedStr, SERVER_OPPONENT_QUIT) != NULL) {
 			printf("Opponent quit.\n");
@@ -123,31 +143,48 @@ static DWORD SendDataThread(void)
 	char SendStr[256];
 	TransferResult_t SendRes;
 
-	//while (1)
-	//{
+	while (1)
+	{
 		gets_s(SendStr, sizeof(SendStr)); //Reading a string from the keyboard
-		
+
 			  //?
-		if (STRINGS_ARE_EQUAL(SendStr, "quit"))
-			return 0x555; //"quit" signals an exit from the client side
+//		if (STRINGS_ARE_EQUAL(SendStr, "quit"))
+//			return 0x555; //"quit" signals an exit from the client side
 
 
-
-		SendRes = SendString(SendStr, m_socket);
-
-		if (SendRes == TRNS_FAILED)
-		{
-			printf("Socket error while trying to write data to socket\n");
-			return 0x555;
+		if (STRINGS_ARE_EQUAL(SendStr, "1")) {
+			SendRes = SendString(CLIENT_VERSUS, m_socket);
+			if (SendRes == TRNS_FAILED) {
+				printf("Socket error while trying to write data to socket\n");
+				return 0x555;
+			}
 		}
+		else if (STRINGS_ARE_EQUAL(SendStr, "2")) {
+			SendRes = SendString(CLIENT_DISCONNECT, m_socket);
+			if (SendRes == TRNS_FAILED) {
+				printf("Socket error while trying to write data to socket\n");
+				return 0x555;
+			}
+			return STATUS_CODE_SUCCESS;
+		}
+		else {
+			if (strlen(SendStr) != 4) { printf("tryin to send wierd thing FIXME: %s\n",SendStr); }
+			char* send_me = NULL;
+			if (global_client_state = SETUP) {
+				send_me = CreateClientSend_one_Param(CLIENT_SETUP, SendStr);
+			}
+			else {
+				send_me = CreateClientSend_one_Param(CLIENT_PLAYER_MOVE, SendStr);
+			}
 
-		// do the flow:
-		// first time, send username 20 chars
-
-		//
-
-
-	//}
+			SendRes = SendString(send_me, m_socket);
+			if (SendRes == TRNS_FAILED) {
+				printf("Socket error while trying to write data to socket\n");
+				return 0x555;
+			}
+			free(send_me);
+		}
+	}
 }
 
 /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
@@ -223,7 +260,7 @@ int MainClient(char* argv[])
 		}
 	}
 	printf("Connected to server on %s:%s\n", global_serverIP, serv_port);
-	char* send_me = CreateUsernameClientSend(argv[4]);
+	char* send_me = CreateClientSend_one_Param(CLIENT_REQUEST,argv[4]);
 	TransferResult_t SendRes = SendString(send_me, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
@@ -262,12 +299,12 @@ int MainClient(char* argv[])
 	return STATUS_CODE_SUCCESS;
 }
 
-char* CreateUsernameClientSend(char* UserName){
+char* CreateClientSend_one_Param(char* message_type,char* paramm){
 	char* merged = NULL;
-	merged = (char*)malloc(strlen(UserName) + strlen(CLIENT_REQUEST) + 3);
-	strcat(merged, CLIENT_REQUEST);
+	merged = (char*)malloc(strlen(paramm) + strlen(message_type) + 3);
+	strcat(merged, message_type);
 	strcat(merged, ":");
-	strcat(merged, UserName);
+	strcat(merged, paramm);
 	strcat(merged, "\n\0");
 	return merged;			//check this FIXME
 }
