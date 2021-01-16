@@ -65,12 +65,15 @@ char* writeMessage(char* MessageType, char* MessageParams[])
 		printf_s("Failed to allocate memory\n\n");
 		return STATUS_CODE_FAILURE;
 	}
-	sprintf_s(message, buffer, MessageType);
+	sprintf_s(message, buffer,"%s:", MessageType);
 	for (int i = 0; i < len(MessageParams); i++)
 	{
-		buffer = snprintf(NULL, 0, "%s;%s",message,MessageParams[i]);
+		buffer = snprintf(NULL, 0, "%s;%s",message,MessageParams[i])+1;
 		message = relloc(message, buffer);
 		sprintf_s(message, buffer, "%s;%s", message, MessageParams[i]);
 	}
+	buffer = snprintf(NULL, 0, "%s;\n", message) + 1;
+	sprintf_s(message, buffer, "%s;\n", message);
+
 	return message;
 }

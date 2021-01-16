@@ -142,10 +142,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Shared\MessageAPI.c" />
+    <ClCompile Include="..\Shared\NetworkInterface.c" />
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="bulls_and_cows_logic.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="NetworkInterface.c" />
     <ClCompile Include="WorkManger.c" />
   </ItemGroup>
   <ItemGroup>

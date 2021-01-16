@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
 const char* SERVER_ADDRESS_STR = "127.0.0.1";
