@@ -22,17 +22,17 @@ typedef struct _SOCKET_INFO
 }SOCKET_INFO;
 
 
-char* Initialize_WinSock();
+int Initialize_WinSock();
 
-char* Close_WinSock();
+int Close_WinSock();
 
 SOCKET Create_Socket();
 
-char* Close_Socket(SOCKET sock);
+int Close_Socket(SOCKET sock);
 
-char* Bind_Socket(SOCKET sock, int port);
+int Bind_Socket(SOCKET sock, int port);
 
-char* Listen_to_Socket(SOCKET sock, int backlog);
+int Listen_to_Socket(SOCKET sock, int backlog);
 
 SOCKET Accept_Socket(SOCKET sock, const struct sockaddr* addr, int* addrlen);
 

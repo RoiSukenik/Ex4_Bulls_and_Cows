@@ -2,9 +2,12 @@
 
 char* Manage_Server(char* argv[])
 {
+	
 	if((sizeof(argv) / sizeof(argv[0])) != NUMBER_OF_ARGV_ALLOWED) {return STATUS_CODE_FAILURE;}
 	char* ptr;
 	int Ind,Loop;
+	for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
+		ThreadHandles[Ind] = NULL;
 	int port = strtol(argv[1], &ptr, 10);
 	char* retval = NULL;
 	Initialize_WinSock();
@@ -12,8 +15,6 @@ char* Manage_Server(char* argv[])
 	retval = Bind_Socket(MainSocket, port);
 	retval = Listen_to_Socket(MainSocket, SOMAXCONN);
 	TransferResult_t SendRes;
-	for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
-		ThreadHandles[Ind] = NULL;
 	while(TRUE)
 	{
 		SOCKET AcceptSocket = Accept_Socket(MainSocket, NULL, NULL);

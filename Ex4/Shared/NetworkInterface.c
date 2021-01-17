@@ -1,6 +1,6 @@
 #include "NetworkInterface.h"
 
-char* Initialize_WinSock() 
+int Initialize_WinSock() 
 {
 	WSADATA wsa_data;
 	int result;
@@ -16,7 +16,7 @@ char* Initialize_WinSock()
 	return STATUS_CODE_SUCSESS; 
 }
 
-char* Close_WinSock()
+int Close_WinSock()
 {
 	int result;
 	int retval = 0;
@@ -52,7 +52,7 @@ SOCKET Create_Socket()
 	}
 	return sock;
 }
-char* Close_Socket(SOCKET sock)
+int Close_Socket(SOCKET sock)
 {
 	int iResult = 0;
 	int retval = 0;
@@ -66,7 +66,7 @@ char* Close_Socket(SOCKET sock)
 	return STATUS_CODE_SUCSESS;
 }
 
-char* Bind_Socket(SOCKET sock ,int port ) 
+int Bind_Socket(SOCKET sock ,int port ) 
 {
 	int retval = 0;
 	int iResult;
@@ -93,7 +93,7 @@ char* Bind_Socket(SOCKET sock ,int port )
 	}
 }
 
-char* Listen_to_Socket(SOCKET sock, int backlog) 
+int Listen_to_Socket(SOCKET sock, int backlog) 
 {
 	int iResult = 0;
 	int retval = 0;
@@ -111,13 +111,10 @@ char* Listen_to_Socket(SOCKET sock, int backlog)
 SOCKET Accept_Socket(SOCKET ListenSocket, const struct sockaddr *addr, int *addrlen)
 {
 	SOCKET AcceptSocket = INVALID_SOCKET;
-	int ret = 0;
-	ret = wprintf_s(L"Waiting for client to connect...\n");
-	if (ret < 0) printf_s("failed to print waiting for connection\n");
+	wprintf_s(L"Waiting for client to connect...\n");
 	AcceptSocket = accept(ListenSocket, NULL, NULL);
 	if (AcceptSocket == INVALID_SOCKET) {
-		ret = wprintf_s(L"accept failed with error: %ld\n", WSAGetLastError());
-		if (ret < 0) printf_s("failed to print error\n");
+		wprintf_s(L"accept failed with error: %ld\n", WSAGetLastError());
 		closesocket(ListenSocket);
 		WSACleanup();
 		return INVALID_SOCKET;
