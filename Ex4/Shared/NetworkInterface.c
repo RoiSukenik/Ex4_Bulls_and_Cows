@@ -119,8 +119,9 @@ SOCKET Accept_Socket(SOCKET ListenSocket, const struct sockaddr *addr, int *addr
 		WSACleanup();
 		return INVALID_SOCKET;
 	}
-	else
-		wprintf(L"Client connected.\n");
-	return AcceptSocket;
-
+	else{
+		wprintf_s(L"Client connected.\n");
+		return AcceptSocket;
+	}
+	
 }

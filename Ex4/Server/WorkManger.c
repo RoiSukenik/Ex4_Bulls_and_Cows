@@ -19,6 +19,7 @@ char* Manage_Server(char* argv[])
 	{
 		SOCKET AcceptSocket = Accept_Socket(MainSocket, NULL, NULL);
 		Ind = FindFirstUnusedThreadSlot();
+		
 		if (Ind == NUM_OF_WORKER_THREADS) //no slot is available
 		{
 			SendRes = SendString(SERVER_DENIED, MainSocket);
@@ -41,7 +42,6 @@ char* Manage_Server(char* argv[])
 				0,
 				NULL
 			);
-			Ind = Ind + 1;
 		}
 
 	}
@@ -77,11 +77,11 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
-	HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
+	/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
 	if (CommunictionFileCheck != NULL)
 	{
 		CommunictionFileHandle = CommunictionFileCheck;
-	}
+	}*/
 	char userName[MAX_USER_NAME_LEN];
 	while (TRUE)
 	{

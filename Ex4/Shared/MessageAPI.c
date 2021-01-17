@@ -62,7 +62,8 @@ char* writeMessage(char* MessageType, char** MessageParams)
 	}
 	retval = sprintf_s(message, buffer,"%s", MessageType);
 	int paramLength = sizeof(MessageParams) / sizeof(MessageParams[0]);
-	for (int i = 0; i < paramLength; i++)
+	int i;
+	for ( i = 0; i < paramLength; i++)
 	{
 		if (i == 0)
 		{
@@ -77,9 +78,9 @@ char* writeMessage(char* MessageType, char** MessageParams)
 		}
 		
 	}
-	buffer = snprintf(NULL, 0, "%s;\n", message) + 1;
+	buffer = snprintf(NULL, 0, "%s\n", message) + 1;
 	message = realloc(message, buffer);
-	sprintf_s(message, buffer, "%s;\n", message);
+	sprintf_s(message, buffer, "%s\n", message);
 
 	return message;
 }

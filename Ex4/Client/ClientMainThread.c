@@ -242,7 +242,9 @@ int MainClient(char* argv[])
 		}
 	}
 	printf("Connected to server on %s:%s\n", global_serverIP, global_serverPort);
-	char* send_me = CreateClientSend_one_Param(CLIENT_REQUEST,argv[3]);
+	char** param = &argv[3];
+	char* send_me = writeMessage(CLIENT_REQUEST,param);
+	
 	TransferResult_t SendRes = SendString(send_me, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
