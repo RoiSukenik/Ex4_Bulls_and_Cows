@@ -173,7 +173,8 @@ int MainClient(char* argv[])
 {
 	char* global_serverIP	 = argv[1];
 	char* global_serverPort	 = argv[2];
-	int	serv_port	    = atoi(argv[2]);
+	char* tmp_ptr;
+	int	serv_port = strtol(argv[2],&tmp_ptr, 10);
 	char* global_username	 = argv[3];
 
 	SOCKADDR_IN clientService;
@@ -226,27 +227,28 @@ int MainClient(char* argv[])
 	// Check for general errors.
 	if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
 		while (1) {
-			printf("Failed connecting to server on %s:%s.\nChoose what to do next:\n1. Try to reconnect\n2. Exit\n");
-				char digit_answer = 'c';
-				gets_s(digit_answer, sizeof(digit_answer)); //Reading a string from the keyboard
-			if (strstr(digit_answer, "1") != NULL) {
+			printf("Failed connecting to server on %s:%s.\nChoose what to do next:\n1. Try to reconnect\n2. Exit\n", global_serverIP, global_serverPort);
+				char digit_answer[4];
+				gets_s(digit_answer,2* sizeof(char)); //Reading a string from the keyboard
+				char* answer = digit_answer;
+			if (strstr(answer, "1") != NULL) {
 				if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) != SOCKET_ERROR) { break; }
 			}
 			else {
 				printf("you chose 2 (%c=2 ?)  bye\n", digit_answer); //FIXME
 				WSACleanup();
-				return STATUS_CODE_FAILURE;
+				return STATUS_CODE_SUCCESS;
 			}
 		}
 	}
-	printf("Connected to server on %s:%s\n", global_serverIP, serv_port);
+	printf("Connected to server on %s:%s\n", global_serverIP, global_serverPort);
 	char* send_me = CreateClientSend_one_Param(CLIENT_REQUEST,argv[3]);
 	TransferResult_t SendRes = SendString(send_me, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Socket error while trying to write data to socket\n");
-		free(send_me);
-		return STATUS_CODE_SUCCESS;
+		free(send_me); 
+		return STATUS_CODE_FAILURE;
 	}
 	free(send_me);
 

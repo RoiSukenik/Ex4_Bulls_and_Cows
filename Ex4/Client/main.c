@@ -7,5 +7,5 @@ int main(int argc, char* argv[])
 		return STATUS_CODE_FAILURE;
 	}
 
-	return MainClient(*argv);
+	return MainClient(argv);
 }
