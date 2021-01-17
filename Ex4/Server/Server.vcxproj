@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Client\NetworkInterface.c" />
     <ClCompile Include="..\Shared\MessageAPI.c" />
     <ClCompile Include="..\Shared\NetworkInterface.c" />
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />

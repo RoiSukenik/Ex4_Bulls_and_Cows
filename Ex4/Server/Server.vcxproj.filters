@@ -36,7 +36,7 @@
     <ClCompile Include="..\Shared\MessageAPI.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Shared\NetworkInterface.c">
+    <ClCompile Include="..\Client\NetworkInterface.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
   </ItemGroup>

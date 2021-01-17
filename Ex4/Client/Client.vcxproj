@@ -146,6 +146,7 @@
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="ClientMainThread.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="NetworkInterface.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Server\NetworkInterface.h" />
