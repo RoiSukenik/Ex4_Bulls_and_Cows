@@ -9,5 +9,6 @@ Multi-Threading, Semaphore, Mutex and Network Protocals - in perticular the use 
 
 int main(int argc, char* argv[])
 {
-
+	Manage_Server(argv);
+	return 0;
 }
