@@ -4,16 +4,19 @@
 #include "NetworkInterface.h"
 #include "SocketSendRecvTools.h"
 #include "MessageAPI.h"
+#include <conio.h>
 
 
 
 
+#define NUM_OF_WORKER_THREADS		2
+#define MAX_LOOPS					3
+#define NUMBER_OF_ARGV_ALLOWED		1
+#define MAX_USER_NAME_LEN			20
+#define EXIT_WORD_LEN				5
+#define SLEEP_TIME					1000
 
-#define NUM_OF_WORKER_THREADS 2
-#define MAX_LOOPS 3
-#define NUMBER_OF_ARGV_ALLOWED 1
-#define MAX_USER_NAME_LEN 20
-
+#define EXIT_WORD					"exit"						
 #define SERVER_MAIN_MENU			"SERVER_MAIN_MENU\n"
 #define SERVER_APPROVED				"SERVER_APPROVED\n"
 #define SERVER_DENIED				"SERVER_DENIED"
@@ -32,12 +35,14 @@
 #define CLIENT_SETUP				"CLIENT_SETUP"
 #define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
 
+#define PATH						"GameSession.txt"
 
 bool new_file_flag = false;
 
-const char* path = "GameSession.txt";
+
 
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
+HANDLE CommunictionFileHandle;
 SOCKET ThreadInputs[NUM_OF_WORKER_THREADS];
 volatile HANDLE Mutex_que;
 

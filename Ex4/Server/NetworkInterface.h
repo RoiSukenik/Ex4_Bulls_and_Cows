@@ -2,18 +2,20 @@
 #define NETWORK_INTERFACE_DOT_H
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
 
-#include <windows.h>
+#include <WinSock2.h>
+#pragma comment(lib, "ws2_32.lib")
+
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <WinSock2.h>
-#pragma comment(lib, "ws2_32.lib")
+
 
 #define STATUS_CODE_FAILURE "-1"
 #define STATUS_CODE_SUCSESS  "0"
 const char* SERVER_ADDRESS_STR = "127.0.0.1";
-const char* SERVER_PORT	= "1111"; //  ???
+
 
 typedef struct _SOCKET_INFO
 {

@@ -77,6 +77,12 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
+	HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
+	if (CommunictionFileCheck != NULL)
+	{
+		CommunictionFileHandle = CommunictionFileCheck;
+	}
+	
 	char userName[MAX_USER_NAME_LEN];
 	while (TRUE)
 	{
@@ -135,17 +141,43 @@ int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
 	}
 }
 
-char* checkFileExists()
+HANDLE checkFileExistsElseCreate()
 {
-	FILE* p_stream;
-	if (p_stream = fopen(path, 'r'))
+	HANDLE file_handle = NULL;
+	file_handle = CreateFileA(PATH, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file_handle == INVALID_HANDLE_VALUE) {
+		printf("Read request failed, Last Error = %s\n ", GetLastError());
+		return NULL;
+	}
+	else if (file_handle == ERROR_FILE_EXISTS)
 	{
-		fclose(p_stream);
-		return STATUS_CODE_SUCSESS;
+		printf("Read request failed, Last Error = %s\n ", GetLastError());
+		return NULL;
 	}
 	else
 	{
-		fclose(p_stream);
-		return STATUS_CODE_FAILURE;
+		return file_handle;
 	}
+	
+}
+
+int checkForExit()
+{
+	HANDLE exitThread;
+
+	char exit_word[EXIT_WORD_LEN + 1];
+	while (TRUE) {
+		if (_kbhit() != 0) {
+			scanf_s(" %s", exit_word, EXIT_WORD_LEN + 1);
+			if (strcmp(exit_word, EXIT_WORD) == 0)
+			{
+				printf("exiting by users...\n");
+				break;
+			}
+		}
+		else
+			Sleep(SLEEP_TIME);
+	}
+	clean_working_threads();
+	return 0;
 }
