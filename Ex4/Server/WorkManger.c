@@ -42,6 +42,8 @@ char* Manage_Server(char* argv[])
 				0,
 				NULL
 			);
+			printf("Thread opened");
+			Sleep(60000);
 		}
 
 	}
@@ -74,7 +76,7 @@ static int FindFirstUnusedThreadSlot()
 }
 
 static DWORD ServiceThread(SOCKET* t_socket) {
-	
+	printf("im in");
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
 	/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();

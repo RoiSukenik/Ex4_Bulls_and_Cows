@@ -4,7 +4,7 @@
 char* MessageType(char* string)
 {
 	char* MessageType = NULL;
-	char* delimiter = ':';
+	char delimiter = ':';
 	char* params = NULL;
 	MessageType = strtok_s(string, delimiter, &params);
 	return MessageType;
