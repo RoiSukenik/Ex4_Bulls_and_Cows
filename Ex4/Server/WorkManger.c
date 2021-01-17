@@ -24,7 +24,6 @@ char* Manage_Server(char* argv[])
 			if (SendCheck(SendRes, MainSocket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 			printf("No slots available for client, dropping the connection.\n");
 			Close_Socket(AcceptSocket); //Closing the socket, dropping the connection.
-			//FIXME - Stop listening.
 			break;
 		}
 		else
@@ -82,12 +81,10 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	{
 		CommunictionFileHandle = CommunictionFileCheck;
 	}
-	
 	char userName[MAX_USER_NAME_LEN];
 	while (TRUE)
 	{
 		char* AcceptedStr = NULL;
-
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 		char* messageType = MessageType(RecvRes);
@@ -95,8 +92,10 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 		if (messageType == CLIENT_REQUEST)
 		{
-			free(AcceptedStr);
+			
 			strcpy_s(userName, sizeof(*messageParameters[0]), *messageParameters[0]);
+			freeParamList(messageParameters);
+			free(AcceptedStr);
 			SendRes = SendString(SERVER_APPROVED, *t_socket);
 			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) {return STATUS_CODE_FAILURE;}
 			SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
@@ -104,7 +103,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		}
 		if (messageType == CLIENT_VERSUS)
 		{
-
+			
 		}
 		
 
@@ -179,5 +178,5 @@ int checkForExit()
 			Sleep(SLEEP_TIME);
 	}
 	clean_working_threads();
-	return 0;
+	return STATUS_CODE_SUCSESS;
 }

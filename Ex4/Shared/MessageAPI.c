@@ -53,13 +53,14 @@ char* MessageParams(char* string)
 //dont forget to free memory
 char* writeMessage(char* MessageType, char** MessageParams)
 {
+	errno_t retval;
 	size_t buffer = snprintf(NULL, 0, MessageType) + 1;
 	char* message = malloc(buffer);
 	if (NULL == message) {
 		printf_s("Failed to allocate memory\n\n");
 		return STATUS_CODE_FAILURE;
 	}
-	sprintf_s(message, buffer,"%s", MessageType);
+	retval = sprintf_s(message, buffer,"%s", MessageType);
 	int paramLength = sizeof(MessageParams) / sizeof(MessageParams[0]);
 	for (int i = 0; i < paramLength; i++)
 	{
@@ -81,9 +82,16 @@ char* writeMessage(char* MessageType, char** MessageParams)
 
 	return message;
 }
-void freeParamList(char* messageParams)
+void freeParamList(char** messageParams)
 {
-	
+	int paramLength = sizeof(messageParams) / sizeof(messageParams[0]);
+	int i = 0;
+	while (i < paramLength)
+	{
+		free(*messageParams[i]);
+		i++;
+	}
+	free(messageParams);
 }
 
 int amountOfParamsCalc(char* string)
