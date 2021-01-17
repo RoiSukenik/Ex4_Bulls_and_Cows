@@ -36,7 +36,7 @@
     <ClCompile Include="..\Shared\MessageAPI.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Client\NetworkInterface.c">
+    <ClCompile Include="..\Shared\NetworkInterface.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,13 +50,13 @@
     <ClInclude Include="bulls_and_cows_logic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\Downloads\IspRecitation10_Examples\IspRecitation10_Examples\Shared\SocketSendRecvTools.h">
-      <Filter>Shared Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkInterface.h">
-      <Filter>Shared Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Shared\MessageAPI.h">
+      <Filter>Shared Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\NetworkInterface.h">
+      <Filter>Shared Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\SocketSendRecvTools.h">
       <Filter>Shared Header Files</Filter>
     </ClInclude>
   </ItemGroup>

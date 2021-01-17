@@ -4,12 +4,13 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
 
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-#include <windows.h>
+#include "SocketSendRecvTools.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+
+#include <windows.h>
+
 
 
 #define STATUS_CODE_FAILURE -1

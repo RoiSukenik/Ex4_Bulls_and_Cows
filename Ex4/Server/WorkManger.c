@@ -87,8 +87,8 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		char* AcceptedStr = NULL;
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-		char* messageType = MessageType(RecvRes);
-		char** messageParameters[] = MessageParams(RecvRes);
+		char* messageType = MessageType(AcceptedStr);
+		char** messageParameters = MessageParams(AcceptedStr);
 
 		if (messageType == CLIENT_REQUEST)
 		{
@@ -140,18 +140,18 @@ int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
 	}
 }
 
-HANDLE checkFileExistsElseCreate()
+HANDLE* checkFileExistsElseCreate(void)
 {
 	HANDLE file_handle = NULL;
 	file_handle = CreateFileA(PATH, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file_handle == INVALID_HANDLE_VALUE) {
 		printf("Read request failed, Last Error = %s\n ", GetLastError());
-		return NULL;
+		return file_handle;
 	}
 	else if (file_handle == ERROR_FILE_EXISTS)
 	{
 		printf("Read request failed, Last Error = %s\n ", GetLastError());
-		return NULL;
+		return file_handle;
 	}
 	else
 	{

@@ -1,10 +1,12 @@
 #ifndef NETWORK_INTERFACE_DOT_H
 #define NETWORK_INTERFACE_DOT_H
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #pragma comment(lib, "Ws2_32.lib")
+#include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
-#include <winsock2.h>
+
 #include <string.h>
 #include <stdbool.h>
 

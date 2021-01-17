@@ -146,11 +146,10 @@
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="ClientMainThread.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="NetworkInterface.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Server\NetworkInterface.h" />
     <ClInclude Include="..\Shared\MessageAPI.h" />
+    <ClInclude Include="..\Shared\NetworkInterface.h" />
     <ClInclude Include="..\Shared\SocketSendRecvTools.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
