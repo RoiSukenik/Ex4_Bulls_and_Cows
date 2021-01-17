@@ -6,7 +6,7 @@
 
 #include <WinSock2.h>
 #pragma comment(lib, "ws2_32.lib")
-
+#include <windows.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
