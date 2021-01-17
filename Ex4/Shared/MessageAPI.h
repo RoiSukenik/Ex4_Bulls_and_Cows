@@ -4,6 +4,7 @@
 #include	<string.h>
 #include	<stdbool.h>
 #include	<stdlib.h>
+#include	<stdio.h>
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0

@@ -67,17 +67,18 @@ char* writeMessage(char* MessageType, char** MessageParams)
 		if (i == 0)
 		{
 			buffer = snprintf(NULL, 0, "%s:%s", message, MessageParams[i]) + 1;
-			message = relloc(message, buffer);
+			message = realloc(message, buffer);
 			sprintf_s(message, buffer, "%s:%s", message, MessageParams[i]);
 		}
 		else {
 			buffer = snprintf(NULL, 0, "%s;%s", message, MessageParams[i]) + 1;
-			message = relloc(message, buffer);
+			message = realloc(message, buffer);
 			sprintf_s(message, buffer, "%s;%s", message, MessageParams[i]);
 		}
 		
 	}
 	buffer = snprintf(NULL, 0, "%s;\n", message) + 1;
+	message = realloc(message, buffer);
 	sprintf_s(message, buffer, "%s;\n", message);
 
 	return message;

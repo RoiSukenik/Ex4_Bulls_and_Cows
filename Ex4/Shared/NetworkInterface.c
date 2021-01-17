@@ -118,7 +118,7 @@ SOCKET Accept_Socket(SOCKET ListenSocket, const struct sockaddr *addr, int *addr
 	if (ret < 0) printf_s("failed to print waiting for connection\n");
 	AcceptSocket = accept(ListenSocket, NULL, NULL);
 	if (AcceptSocket == INVALID_SOCKET) {
-		ret = wprintf_S(L"accept failed with error: %ld\n", WSAGetLastError());
+		ret = wprintf_s(L"accept failed with error: %ld\n", WSAGetLastError());
 		if (ret < 0) printf_s("failed to print error\n");
 		closesocket(ListenSocket);
 		WSACleanup();

@@ -151,6 +151,7 @@
     <ClInclude Include="..\Shared\MessageAPI.h" />
     <ClInclude Include="..\Shared\NetworkInterface.h" />
     <ClInclude Include="..\Shared\SocketSendRecvTools.h" />
+    <ClInclude Include="ClientMainThread.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

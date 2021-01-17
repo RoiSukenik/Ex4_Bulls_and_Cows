@@ -1,61 +1,39 @@
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-/*
- This file was written for instruction purposes for the
- course "Introduction to Systems Programming" at Tel-Aviv
- University, School of Electrical Engineering.
-Last updated by Amnon Drory, Winter 2011.
- */
- /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include "ClientMainThread.h"
 
 
+char* CreateClientSend_one_Param(char* message_type, char* paramm) {
+	char* merged = NULL;
+	merged = (char*)malloc(strlen(paramm) + strlen(message_type) + 3);
+	int i = 0;
+	int j = 0;
+	while (i < strlen(message_type))
+	{
+		merged[j] = message_type[i];
+		i++;
+		j++;
+	}
 
-#define SERVER_MAIN_MENU			"SERVER_MAIN_MENU"
-#define SERVER_APPROVED				"SERVER_APPROVED"
-#define SERVER_DENIED				"SERVER_DENIED"
-#define SERVER_INVITE				"SERVER_INVITE"
-#define SERVER_SETUP_REQUSET		"SERVER_SETUP_REQUSET"
-#define SERVER_PLAYER_MOVE_REQUEST	"SERVER_PLAYER_MOVE_REQUEST"
-#define SERVER_GAME_RESULTS			"SERVER_GAME_RESULTS"
-#define SERVER_WIN					"SERVER_WIN"
-#define SERVER_DRAW					"SERVER_DRAW"
-#define SERVER_NO_OPPONENTS			"SERVER_NO_OPPONENTS"
-#define SERVER_OPPONENT_QUIT		"SERVER_OPPONENT_QUIT"
+	merged[j] = ":";
+	j++;
+	i = 0;
+	while (i < strlen(paramm))
+	{
+		merged[j] = paramm[i];
+		i++;
+		j++;
+	}
 
-#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT\n"		// \n here notice
-#define CLIENT_REQUEST				"CLIENT_REQUEST"
-#define CLIENT_VERSUS				"CLIENT_VERSUS\n"			// \n here notice
-#define CLIENT_SETUP				"CLIENT_SETUP"
-#define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
+	merged[j] = "\n";
+	j++;
+	merged[j] = "\0";
+	j++;
 
-#define STATUS_CODE_FAILURE -1
-#define STATUS_CODE_SUCCESS 0
-
-#define _CRT_SECURE_NO_WARNINGS
+	return merged;
+}
 
 
-#include <stdio.h>
-#include <string.h>
-#include <winsock2.h>
 
-#include "NetworkInterface.h"
-#include "SocketSendRecvTools.h"
-#include "MessageAPI.h"
-
-	// #include "SocketSendRecvTools.h"
-
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
-
-char* global_serverIP;
-char* global_serverPort;
-char* global_username;
-SOCKET m_socket;
-
-#define SETUP 0
-#define GUESS 1
-int global_client_state = SETUP;
-/*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 //Reading data coming from the server
 static DWORD RecvDataThread(void)
@@ -154,14 +132,14 @@ static DWORD SendDataThread(void)
 //			return 0x555; //"quit" signals an exit from the client side
 
 
-		if (STRINGS_ARE_EQUAL(SendStr, "1")) {
+		if (strcmp(SendStr, "1") == 0) {
 			SendRes = SendString(CLIENT_VERSUS, m_socket);
 			if (SendRes == TRNS_FAILED) {
 				printf("Socket error while trying to write data to socket\n");
 				return 0x555;
 			}
 		}
-		else if (STRINGS_ARE_EQUAL(SendStr, "2")) {
+		else if (strcmp(SendStr, "2") == 0) {
 			SendRes = SendString(CLIENT_DISCONNECT, m_socket);
 			if (SendRes == TRNS_FAILED) {
 				printf("Socket error while trying to write data to socket\n");
@@ -172,7 +150,7 @@ static DWORD SendDataThread(void)
 		else {
 			if (strlen(SendStr) != 4) { printf("tryin to send wierd thing FIXME: %s\n",SendStr); }
 			char* send_me = NULL;
-			if (global_client_state = SETUP) {
+			if (global_client_state == SETUP) {
 				send_me = CreateClientSend_one_Param(CLIENT_SETUP, SendStr);
 			}
 			else {
@@ -249,7 +227,7 @@ int MainClient(char* argv[])
 	if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
 		while (1) {
 			printf("Failed connecting to server on %s:%s.\nChoose what to do next:\n1. Try to reconnect\n2. Exit\n");
-				char digit_answer;
+				char digit_answer = 'c';
 				gets_s(digit_answer, sizeof(digit_answer)); //Reading a string from the keyboard
 			if (strstr(digit_answer, "1") != NULL) {
 				if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) != SOCKET_ERROR) { break; }
@@ -262,7 +240,7 @@ int MainClient(char* argv[])
 		}
 	}
 	printf("Connected to server on %s:%s\n", global_serverIP, serv_port);
-	char* send_me = CreateClientSend_one_Param(CLIENT_REQUEST,argv[4]);
+	char* send_me = CreateClientSend_one_Param(CLIENT_REQUEST,argv[3]);
 	TransferResult_t SendRes = SendString(send_me, m_socket);
 	if (SendRes == TRNS_FAILED)
 	{
@@ -301,12 +279,4 @@ int MainClient(char* argv[])
 	return STATUS_CODE_SUCCESS;
 }
 
-char* CreateClientSend_one_Param(char* message_type,char* paramm) {
-	char* merged = NULL;
-	merged = (char*)malloc(strlen(paramm) + strlen(message_type) + 3);
-	strcat(merged, message_type);
-	strcat(merged, ":");
-	strcat(merged, paramm);
-	strcat(merged, "\n\0");
-	return merged;			//check this FIXME
-}
+
