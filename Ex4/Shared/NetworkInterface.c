@@ -41,7 +41,11 @@ SOCKET Create_Socket()
 
 	int retval = 0;
 	sock = socket(iFamily, iType, iProtocol);
-	if (sock == INVALID_SOCKET) wprintf(L"socket function failed with error = %d\n", WSAGetLastError());
+	if (sock == INVALID_SOCKET)
+	{
+		wprintf(L"socket function failed with error = %d\n", WSAGetLastError());
+		WSACleanup();
+	}
 	else 
 	{
 		wprintf_s(L"socket function succeeded\n");
@@ -55,8 +59,7 @@ char* Close_Socket(SOCKET sock)
 	iResult = closesocket(sock);
 	if (iResult == SOCKET_ERROR)
 	{
-		retval = wprintf_s(L"closesocket failed with error = %d\n", WSAGetLastError());
-		if (retval < 0) printf_s("failed to print error\n");
+		wprintf_s(L"closesocket failed with error = %d\n", WSAGetLastError());
 		WSACleanup();
 		return INVALID_SOCKET;
 	}
@@ -78,8 +81,9 @@ char* Bind_Socket(SOCKET sock ,int port )
 
 	iResult = bind(sock, (SOCKADDR*)&service, sizeof(service));
 	if (iResult == SOCKET_ERROR) {
-		retval = wprintf_s(L"bind failed with error %u\n", WSAGetLastError());
-		if (retval < 0) printf_s("failed to print error\n");
+		wprintf_s(L"bind failed with error %u\n", WSAGetLastError());
+		closesocket(sock);
+		WSACleanup();
 		return Close_Socket(sock);
 	}
 	else
@@ -96,12 +100,11 @@ char* Listen_to_Socket(SOCKET sock, int backlog)
 	iResult = listen(sock, backlog);
 	if (iResult == SOCKET_ERROR)
 	{
-		retval = wprintf_s(L"listen failed with error %u\n", WSAGetLastError());
-		if (retval < 0) printf_s("failed to print error\n");
+		wprintf_s(L"Listen failed with error %u\n", WSAGetLastError());
+		closesocket(sock);
+		WSACleanup();
 		return SOCKET_ERROR;
 	}
-	retval = wprintf_s(L"bind failed with error %u\n", WSAGetLastError());
-	if (retval < 0) printf_s("failed to print error\n");
 	return STATUS_CODE_SUCSESS;
 }
 
