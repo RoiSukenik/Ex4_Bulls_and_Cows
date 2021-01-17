@@ -141,11 +141,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Server\NetworkInterface.c" />
     <ClCompile Include="..\Shared\MessageAPI.c" />
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="ClientMainThread.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="NetworkInterface.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Server\NetworkInterface.h" />

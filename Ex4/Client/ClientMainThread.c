@@ -23,14 +23,16 @@ Last updated by Amnon Drory, Winter 2011.
 #define SERVER_NO_OPPONENTS			"SERVER_NO_OPPONENTS"
 #define SERVER_OPPONENT_QUIT		"SERVER_OPPONENT_QUIT"
 
-#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT\n"
+#define CLIENT_DISCONNECT			"CLIENT_DISCONNECT\n"		// \n here notice
 #define CLIENT_REQUEST				"CLIENT_REQUEST"
-#define CLIENT_VERSUS				"CLIENT_VERSUS"
+#define CLIENT_VERSUS				"CLIENT_VERSUS\n"			// \n here notice
 #define CLIENT_SETUP				"CLIENT_SETUP"
 #define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCCESS 0
+
+#define _CRT_SECURE_NO_WARNINGS
 
 
 #include <stdio.h>
@@ -97,10 +99,10 @@ static DWORD RecvDataThread(void)
 		}
 		else if (strstr(AcceptedStr, SERVER_GAME_RESULTS) != NULL) {
 			// get parameters
-			char *params = MessageParams(AcceptedStr);
+			char** params = MessageParams(AcceptedStr);
 			if (params == STATUS_CODE_FAILURE) { return STATUS_CODE_FAILURE;}
 			// print
-			printf("Bulls: %s\nCows: %s\n%s played: %s\n", params[0], params[1], params[2], params[3]);
+			printf("Bulls: %s\nCows: %s\n%s played: %s\n", *params[0], *params[1], *params[2], *params[3]);
 			// free
 			for (int i = 0; i < 4; i++) {free(params[i]);}
 			free(params);
@@ -299,7 +301,7 @@ int MainClient(char* argv[])
 	return STATUS_CODE_SUCCESS;
 }
 
-char* CreateClientSend_one_Param(char* message_type,char* paramm){
+char* CreateClientSend_one_Param(char* message_type,char* paramm) {
 	char* merged = NULL;
 	merged = (char*)malloc(strlen(paramm) + strlen(message_type) + 3);
 	strcat(merged, message_type);
