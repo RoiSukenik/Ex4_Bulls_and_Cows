@@ -3,7 +3,7 @@
 char* Manage_Server(char* argv[])
 {
 	if((sizeof(argv) / sizeof(argv[0])) != NUMBER_OF_ARGV_ALLOWED) {return STATUS_CODE_FAILURE;}
-	char* ptr = NULL;
+	char* ptr;
 	int Ind,Loop;
 	int port = strtol(argv[1], &ptr, 10);
 	char* retval = NULL;
@@ -140,7 +140,7 @@ int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
 	}
 }
 
-HANDLE* checkFileExistsElseCreate(void)
+HANDLE checkFileExistsElseCreate(void)
 {
 	HANDLE file_handle = NULL;
 	file_handle = CreateFileA(PATH, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -177,6 +177,6 @@ int checkForExit()
 		else
 			Sleep(SLEEP_TIME);
 	}
-	clean_working_threads();
+	//clean_working_threads();
 	return STATUS_CODE_SUCSESS;
 }

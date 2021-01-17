@@ -44,11 +44,7 @@ SOCKET Create_Socket()
 	if (sock == INVALID_SOCKET) wprintf(L"socket function failed with error = %d\n", WSAGetLastError());
 	else 
 	{
-		retval = wprintf_s(L"socket function succeeded\n");
-		if (retval < 0) printf_s("failed to print error\n");
-		// Close the socket to release the resources associated
-		return Close_Socket(sock);
-
+		wprintf_s(L"socket function succeeded\n");
 	}
 	return sock;
 }
@@ -89,7 +85,6 @@ char* Bind_Socket(SOCKET sock ,int port )
 	else
 	{
 		retval = wprintf_s(L"bind returned success\n");
-		if (retval < 0) printf_s("failed to print error\n");
 		return STATUS_CODE_SUCSESS;
 	}
 }

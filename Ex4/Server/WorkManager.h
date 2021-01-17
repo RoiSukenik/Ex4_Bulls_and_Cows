@@ -37,7 +37,7 @@
 
 #define PATH						"GameSession.txt"
 
-bool new_file_flag = false;
+
 
 
 
@@ -51,5 +51,7 @@ char* Manage_Server(char* argv[]);
 static int FindFirstUnusedThreadSlot();
 
 static DWORD ServiceThread(SOCKET* t_socket);
+
+HANDLE checkFileExistsElseCreate(void);
 
 #endif // !WORK_MANAGER_DOT_H
