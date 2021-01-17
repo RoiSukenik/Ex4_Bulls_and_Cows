@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="..\Client\NetworkInterface.c" />
     <ClCompile Include="..\Shared\MessageAPI.c" />
+    <ClCompile Include="..\Shared\NetworkInterface.c" />
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="bulls_and_cows_logic.c" />
     <ClCompile Include="main.c" />

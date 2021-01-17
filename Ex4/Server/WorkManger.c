@@ -2,6 +2,7 @@
 
 char* Manage_Server(char* argv[])
 {
+	if((sizeof(argv) / sizeof(argv[0])) != NUMBER_OF_ARGV_ALLOWED) {return STATUS_CODE_FAILURE;}
 	char* ptr = NULL;
 	int Ind,Loop;
 	int port = strtol(argv[1], &ptr, 10);
@@ -73,7 +74,23 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
+	char userName[MAX_USER_NAME_LEN];
+	while (TRUE)
+	{
+		char* AcceptedStr = NULL;
 
+		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 
+		char* messageType = MessageType(RecvRes);
+		char** messageParameters[] = MessageParams(RecvRes);
+
+		if (messageType == CLIENT_REQUEST)
+		{
+			strcpy_s(userName, sizeof(*messageParameters[0]), *messageParameters[0]);
+
+			
+
+		}
+	}
 
 }
