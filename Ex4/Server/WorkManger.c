@@ -11,6 +11,7 @@ char* Manage_Server(char* argv[])
 	SOCKET MainSocket = Create_Socket();
 	retval = Bind_Socket(MainSocket, port);
 	retval = Listen_to_Socket(MainSocket, SOMAXCONN);
+	TransferResult_t SendRes;
 	for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
 		ThreadHandles[Ind] = NULL;
 	while(TRUE)
@@ -19,6 +20,8 @@ char* Manage_Server(char* argv[])
 		Ind = FindFirstUnusedThreadSlot();
 		if (Ind == NUM_OF_WORKER_THREADS) //no slot is available
 		{
+			SendRes = SendString(SERVER_DENIED, MainSocket);
+			if (SendCheck(SendRes, MainSocket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 			printf("No slots available for client, dropping the connection.\n");
 			Close_Socket(AcceptSocket); //Closing the socket, dropping the connection.
 			//FIXME - Stop listening.
@@ -80,17 +83,69 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		char* AcceptedStr = NULL;
 
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-
+		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 		char* messageType = MessageType(RecvRes);
 		char** messageParameters[] = MessageParams(RecvRes);
 
 		if (messageType == CLIENT_REQUEST)
 		{
+			free(AcceptedStr);
 			strcpy_s(userName, sizeof(*messageParameters[0]), *messageParameters[0]);
-
-			
+			SendRes = SendString(SERVER_APPROVED, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) {return STATUS_CODE_FAILURE;}
+			SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+		}
+		if (messageType == CLIENT_VERSUS)
+		{
 
 		}
+		
+
 	}
 
+}
+int RecvCheck(TransferResult_t RecvRes,SOCKET* t_socket,char* AcceptedStr)
+{
+	if (RecvRes == TRNS_FAILED)
+	{
+		printf("Service socket error while reading, closing thread.\n");
+		closesocket(*t_socket);
+		return STATUS_CODE_FAILURE;
+	}
+	else if (RecvRes == TRNS_DISCONNECTED)
+	{
+		printf("Connection closed while reading, closing thread.\n");
+		closesocket(*t_socket);
+		return STATUS_CODE_FAILURE;
+	}
+	else
+	{
+		printf("Got string : %s\n", AcceptedStr);
+		return STATUS_CODE_SUCSESS;
+	}
+}
+int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
+{
+	if (SendRes == TRNS_FAILED)
+	{
+		printf("Service socket error while writing, closing thread.\n");
+		closesocket(*t_socket);//FIXME -Gentle CLOSE NEEDED
+		return STATUS_CODE_FAILURE;
+	}
+}
+
+char* checkFileExists()
+{
+	FILE* p_stream;
+	if (p_stream = fopen(path, 'r'))
+	{
+		fclose(p_stream);
+		return STATUS_CODE_SUCSESS;
+	}
+	else
+	{
+		fclose(p_stream);
+		return STATUS_CODE_FAILURE;
+	}
 }

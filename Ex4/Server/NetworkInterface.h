@@ -1,16 +1,17 @@
 #ifndef NETWORK_INTERFACE_DOT_H
 #define NETWORK_INTERFACE_DOT_H
 
-#pragma comment(lib, "Ws2_32.lib")
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <windows.h>
 #include <stdio.h>
-#include <winsock2.h>
 #include <string.h>
 #include <stdbool.h>
+#include <WinSock2.h>
+#pragma comment(lib, "ws2_32.lib")
 
-
-#define STATUS_CODE_FAILURE -1
-#define STATUS_CODE_SUCSESS  0
+#define STATUS_CODE_FAILURE "-1"
+#define STATUS_CODE_SUCSESS  "0"
 const char* SERVER_ADDRESS_STR = "127.0.0.1";
 const char* SERVER_PORT	= "1111"; //  ???
 
@@ -35,6 +36,7 @@ char* Bind_Socket(SOCKET sock, int port);
 char* Listen_to_Socket(SOCKET sock, int backlog);
 
 SOCKET Accept_Socket(SOCKET sock, const struct sockaddr* addr, int* addrlen);
+
 
 
 

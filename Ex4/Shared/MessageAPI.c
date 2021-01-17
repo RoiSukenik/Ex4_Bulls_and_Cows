@@ -4,7 +4,7 @@
 char* MessageType(char* string)
 {
 	char* MessageType = NULL;
-	char* delimiter = ';';
+	char* delimiter = ':';
 	char* params = NULL;
 	MessageType = strtok_s(string, delimiter, &params);
 	return MessageType;
@@ -14,25 +14,19 @@ char* MessageType(char* string)
 //Need to release memory after every param extraction and use;
 char* MessageParams(char* string)
 {
+	
+	int amountOfParams = amountOfParamsCalc(string);
+
 	char* MessageType = NULL;
+	char* messageTypeDelimiter = ':';
 	char* delimiter = ';';
 	char* params = NULL;
-	MessageType = strtok_s(string, delimiter, &params);
+	MessageType = strtok_s(params, messageTypeDelimiter, &params);
 
-	char* MessageCloser = '\n';
+
 	char* nextParam = NULL;
 	char* currentParam = NULL;
 
-	int amountOfParams = 0;
-
-	currentParam = strtok_s(params, delimiter, &nextParam);
-	if (currentParam != MessageCloser) { int amountOfParams = 1; }
-	
-	while (nextParam != MessageCloser)
-	{
-		currentParam = strtok_s(params, delimiter, &nextParam);
-		amountOfParams++;
-	}
 	char** p_params_array = NULL;
 	p_params_array = malloc(amountOfParams * sizeof(char*));
 	if (NULL == p_params_array)
@@ -57,7 +51,7 @@ char* MessageParams(char* string)
 
 }
 //dont forget to free memory
-char* writeMessage(char* MessageType, char* MessageParams[])
+char* writeMessage(char* MessageType, char** MessageParams)
 {
 	size_t buffer = snprintf(NULL, 0, MessageType) + 1;
 	char* message = malloc(buffer);
@@ -86,4 +80,33 @@ char* writeMessage(char* MessageType, char* MessageParams[])
 	sprintf_s(message, buffer, "%s;\n", message);
 
 	return message;
+}
+void freeParamList(char* messageParams)
+{
+	
+}
+
+int amountOfParamsCalc(char* string)
+{
+	char* MessageType = NULL;
+	char* messageTypeDelimiter = ':';
+	char* delimiter = ';';
+	char* params = NULL;
+	MessageType = strtok_s(params, messageTypeDelimiter, &params);
+
+	char* MessageCloser = '\n';
+	char* nextParam = NULL;
+	char* currentParam = NULL;
+
+	int amountOfParams = 0;
+
+	currentParam = strtok_s(params, delimiter, &nextParam);
+	if (currentParam != MessageCloser) { int amountOfParams = 1; }
+
+	while (nextParam != MessageCloser)
+	{
+		currentParam = strtok_s(params, delimiter, &nextParam);
+		amountOfParams++;
+	}
+	return amountOfParams;
 }

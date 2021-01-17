@@ -27,13 +27,13 @@
     <ClCompile Include="..\Shared\SocketSendRecvTools.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Server\NetworkInterface.c">
-      <Filter>Shared Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ClientMainThread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Shared\MessageAPI.c">
+      <Filter>Shared Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\NetworkInterface.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
   </ItemGroup>

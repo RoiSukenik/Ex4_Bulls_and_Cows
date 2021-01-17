@@ -7,6 +7,8 @@
 
 
 
+
+
 #define NUM_OF_WORKER_THREADS 2
 #define MAX_LOOPS 3
 #define NUMBER_OF_ARGV_ALLOWED 1
@@ -37,7 +39,7 @@ const char* path = "GameSession.txt";
 
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
 SOCKET ThreadInputs[NUM_OF_WORKER_THREADS];
-
+volatile HANDLE Mutex_que;
 
 char* Manage_Server(char* argv[]);
 
