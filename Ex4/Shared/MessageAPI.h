@@ -10,9 +10,8 @@
 #define STATUS_CODE_SUCSESS  0
 
 char* MessageType(char* string);
-char* MessageParams(char* string);
+char** MessageParams(char* string);
 char* writeMessage(char* MessageType, char* MessageParams[]);
-int amountOfParamsCalc(char* string);
 void freeParamList(char** messageParams);
 
 #endif // !MESSAGEAPI_DOT_H

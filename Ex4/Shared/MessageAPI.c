@@ -3,29 +3,46 @@
 
 char* MessageType(char* string)
 {
+	
 	char* MessageType = NULL;
-	char delimiter = ':';
-	char* params = NULL;
-	MessageType = strtok_s(string, delimiter, &params);
+	char* delimiter = ":";
+	char* params =NULL;
+	char* Message = malloc((strlen(string)*sizeof(char)));
+	strcpy_s(Message,strlen(Message)+1, string);
+	MessageType = strtok_s(Message,delimiter, &params);
+	Message = NULL;
+	free(Message);
 	return MessageType;
 }
 
 
 //Need to release memory after every param extraction and use;
-char* MessageParams(char* string)
+char** MessageParams(char* string)
 {
-	
-	int amountOfParams = amountOfParamsCalc(string);
 
 	char* MessageType = NULL;
-	char* messageTypeDelimiter = ':';
-	char* delimiter = ';';
+	char* delimiter = ":";
+	char* middelimiter = ";";
+	char* closedelimiter = "\n";
 	char* params = NULL;
-	MessageType = strtok_s(params, messageTypeDelimiter, &params);
+	char* Message = malloc((strlen(string) * sizeof(char)));
+	strcpy_s(Message, strlen(Message) + 1, string);
+	MessageType = strtok_s(Message, delimiter, &params);
+	Message = NULL;
+	free(Message);
+	 
+	int i, amountOfParams;
+	if (params != '\n')
+	{
+		for (i = 0,amountOfParams=1; params[i]; i++)
+			amountOfParams += (params[i] == ';');
+	}
+	
 
-
-	char* nextParam = NULL;
+	
+	
 	char* currentParam = NULL;
+	char* nextParam = NULL;
 
 	char** p_params_array = NULL;
 	p_params_array = malloc(amountOfParams * sizeof(char*));
@@ -37,6 +54,8 @@ char* MessageParams(char* string)
 	for (int i = 0; i < amountOfParams; i++)
 	{
 		currentParam = strtok_s(params, delimiter, &nextParam);
+		currentParam = strtok_s(params, middelimiter, &nextParam);
+		currentParam = strtok_s(params, closedelimiter, &nextParam);
 		p_params_array[i] = NULL;
 		p_params_array[i] = (char*)malloc(sizeof(currentParam));
 		if (NULL == p_params_array[i])
@@ -96,27 +115,3 @@ void freeParamList(char** messageParams)
 	free(messageParams);
 }
 
-int amountOfParamsCalc(char* string)
-{
-	char* MessageType = NULL;
-	char* messageTypeDelimiter = ':';
-	char* delimiter = ';';
-	char* params = NULL;
-	MessageType = strtok_s(params, messageTypeDelimiter, &params);
-
-	char* MessageCloser = '\n';
-	char* nextParam = NULL;
-	char* currentParam = NULL;
-
-	int amountOfParams = 0;
-
-	currentParam = strtok_s(params, delimiter, &nextParam);
-	if (currentParam != MessageCloser) { int amountOfParams = 1; }
-
-	while (nextParam != MessageCloser)
-	{
-		currentParam = strtok_s(params, delimiter, &nextParam);
-		amountOfParams++;
-	}
-	return amountOfParams;
-}

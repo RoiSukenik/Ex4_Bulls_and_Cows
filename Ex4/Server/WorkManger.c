@@ -17,6 +17,7 @@ char* Manage_Server(char* argv[])
 	TransferResult_t SendRes;
 	while(TRUE)
 	{
+		printf("im here now");
 		SOCKET AcceptSocket = Accept_Socket(MainSocket, NULL, NULL);
 		Ind = FindFirstUnusedThreadSlot();
 		
@@ -87,13 +88,14 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	char userName[MAX_USER_NAME_LEN];
 	while (TRUE)
 	{
+		
 		char* AcceptedStr = NULL;
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 		char* messageType = MessageType(AcceptedStr);
 		char** messageParameters = MessageParams(AcceptedStr);
 
-		if (messageType == CLIENT_REQUEST)
+		/*if (messageType == CLIENT_REQUEST)
 		{
 			
 			strcpy_s(userName, sizeof(*messageParameters[0]), *messageParameters[0]);
@@ -107,7 +109,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		if (messageType == CLIENT_VERSUS)
 		{
 			
-		}
+		}*/
 		
 
 	}
