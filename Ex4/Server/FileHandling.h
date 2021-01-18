@@ -12,10 +12,14 @@
 #define MIN_READ_SIZE			0
 #define MAX_STR_LEN				500
 
-HANDLE gameLog = NULL;
-HANDLE communication_semaphore = NULL;
 
-int state = 0;
-int critical_section_counter = 0;
 
+
+
+
+
+int write_to_file(HANDLE gameLog, char* string);
+int critical_read_code(HANDLE gameLog, char* read_line);
+int fileMessageFormatter(char* userName, char* message, char* p_formatted_message_returned);
+int getMessageContent(char* message, char* writerUserName, char* content);
 #endif // !FILE_HANDLING_DOT_H

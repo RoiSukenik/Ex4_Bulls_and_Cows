@@ -96,7 +96,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 				if (strcmp(MessageType(AcceptedStr), CLIENT_DISCONNECT) == 0) {
 					global_connected_clients_counter--;
-					// graceful close ?. close this thread.
+					Close_Socket(t_socket);
 				}
 				else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
 				{

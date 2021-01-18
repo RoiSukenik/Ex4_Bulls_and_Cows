@@ -93,7 +93,7 @@ char* writeMessage(char* MessageType, char** MessageParams,char* other)
 	{
 		buffer = snprintf(NULL, 0, "%s:%s\n", message,other) + 1;
 		message = realloc(message, buffer);
-		sprintf_s(message, buffer, "%s\n", message);
+		sprintf_s(message, buffer, "%s:%s\n", message);
 		return message;
 	}
 	for ( i = 0; i < paramLength; i++)

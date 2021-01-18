@@ -50,3 +50,6 @@ int critical_read_code(HANDLE gameLog,char* read_line)
 	errno_t ret_val = CloseHandle(gameLog);
 	if (ret_val == 0) printf("oh no");
 }
+
+
+
