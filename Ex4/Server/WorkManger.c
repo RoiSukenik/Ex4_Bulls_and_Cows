@@ -275,6 +275,8 @@ char* synced_blocking_read_commutication(char* username, char* content) {
 	bool local_written = false;
 	bool local_read = false;
 	DWORD wait_code;
+	char* message_to_write = NULL;
+	int retval = 0;
 	while ((local_read == false) || (local_written == false)) {
 
 		wait_code = WaitForSingleObject(Mutex_readfile,	INFINITE);
@@ -282,21 +284,32 @@ char* synced_blocking_read_commutication(char* username, char* content) {
 			return NULL;
 		}
 		if ((global_readme == false) && (local_written == false)) {
-			// write to file
+			message_to_write = writeMessage(username, NULL, content);
+			retval = write_to_file(message_to_write);
+			if(retval != STATUS_CODE_SUCCESS){/*Fix ME Free shit*/ }
 			global_readme = true;
 			local_written = true;
 		}
 		else if (global_readme == true)
 		{
 			// read and check its not me "<username>:"
-			// if its not me{
-
-				//other_client_userName = // read content
-
-			local_read = true;
-			global_readme = false;
-			// }//else do nothing
-		}	//else do nothing
+			char* tasked_string = NULL;
+			tasked_string = (char*)malloc(MAX_STR_LEN* sizeof(char));
+			if (tasked_string == NULL) {
+				printf("Memory Allocation Failed, this came from a sub thread !\n");
+				return STATUS_CODE_FAILURE;
+			}
+			int ret_val = 0;
+			ret_val = critical_read_code(tasked_string);
+			if (ret_val == STATUS_CODE_FAILURE) { return STATUS_CODE_FAILURE; }
+			char* messageUserName = MessageType(tasked_string);
+			if (strcmp(username, messageUserName) != 0)
+			{
+				content = MessageParams(tasked_string)[0];
+				local_read = true;
+				global_readme = false;
+			}
+		}
 
 		if (!ReleaseMutex(Mutex_readfile)) { printf("Release Mutex error: %d\n", GetLastError()); return NULL; }
 	}

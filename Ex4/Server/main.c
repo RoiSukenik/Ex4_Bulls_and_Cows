@@ -6,9 +6,10 @@ Multi-Threading, Semaphore, Mutex and Network Protocals - in perticular the use 
 */
 
 #include "main.h"
-
+#include "FileHandling.h"
 int main(int argc, char* argv[])
 {
 
 	return Manage_Server(argv);
+	return STATUS_CODE_SUCCESS;
 }

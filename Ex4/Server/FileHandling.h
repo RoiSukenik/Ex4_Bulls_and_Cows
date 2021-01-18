@@ -10,12 +10,15 @@
 #define STATUS_CODE_SUCSESS		0
 #define WAIT_15_SECONDS			150000
 #define MIN_READ_SIZE			0
-#define MAX_STR_LEN				500
+#define MAX_STR_LEN				55
 
-HANDLE gameLog = NULL;
-HANDLE communication_semaphore = NULL;
 
-int state = 0;
-int critical_section_counter = 0;
+
+#define PATH						"GameSession.txt"
+
+
+
+int write_to_file( char* string);
+int critical_read_code( char* read_line);
 
 #endif // !FILE_HANDLING_DOT_H

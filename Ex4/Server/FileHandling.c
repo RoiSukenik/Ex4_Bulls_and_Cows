@@ -1,10 +1,17 @@
 #include "FileHandling.h"
 
-int write_to_file(HANDLE gameLog, char* string)
+int write_to_file(char* string)
 {
 	int ret_val;
 	int string_type;
 	DWORD return_val;
+	HANDLE gameLog = NULL;
+
+	gameLog = CreateFileA(PATH, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (gameLog == INVALID_HANDLE_VALUE) {
+		printf_s("Write request failed, Last Error = %s\n ", GetLastError());
+		return STATUS_CODE_FAILURE;
+	}
 	return_val = SetFilePointer(gameLog, 0, NULL, FILE_BEGIN);//set pointer to end of file. threads start writing from this point
 	if (return_val == INVALID_SET_FILE_POINTER) {
 		printf("Last Error = %d\n ", GetLastError());
@@ -19,9 +26,15 @@ int write_to_file(HANDLE gameLog, char* string)
 	return STATUS_CODE_SUCSESS;
 }
 
-int critical_read_code(HANDLE gameLog,char* read_line)
+int critical_read_code(char* read_line)
 {
-	
+	HANDLE gameLog = NULL;
+	gameLog = CreateFileA(PATH, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (gameLog == INVALID_HANDLE_VALUE) {
+		printf("Read request failed, Last Error = %s\n ", GetLastError());
+		return STATUS_CODE_FAILURE;
+	}
+
 
 	int setfile_returned_value = SetFilePointer(
 		gameLog,
@@ -50,3 +63,11 @@ int critical_read_code(HANDLE gameLog,char* read_line)
 	errno_t ret_val = CloseHandle(gameLog);
 	if (ret_val == 0) printf("oh no");
 }
+void DeleteFile()
+{
+	
+	DeleteFileA(PATH);
+}
+
+
+

@@ -5,6 +5,7 @@
 #include "SocketSendRecvTools.h"
 #include "bulls_and_cows_logic.h"
 #include "MessageAPI.h"
+#include "FileHandling.h"
 #include <conio.h>
 
 
