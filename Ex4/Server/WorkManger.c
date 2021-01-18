@@ -49,11 +49,6 @@ char* Manage_Server(char* argv[])
 				NULL
 			);
 			printf("Thread opened\n");
-			Close_Socket(MainSocket);
-			Close_WinSock();
-			for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
-				free(ThreadHandles[Ind]);
-		
 		}
 
 	}
