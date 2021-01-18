@@ -9,6 +9,7 @@
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
 #define SERVER_DENIED				"SERVER_DENIED"
+#define CLIENT_REQUEST				"CLIENT_REQUEST"
 
 char* MessageType(char* string);
 char** MessageParams(char* string);

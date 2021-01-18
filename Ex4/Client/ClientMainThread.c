@@ -151,7 +151,6 @@ static DWORD SendDataThread(void)
 			return STATUS_CODE_SUCCESS;
 		}
 		else {
-			if (strlen(SendStr) != 4) { printf("trying to send wierd thing FIXME: %s\n",SendStr); }
 			char* send_me = NULL;
 			if (global_client_state == SETUP) {
 				send_me = CreateClientSend_one_Param(CLIENT_SETUP, SendStr);
@@ -245,7 +244,7 @@ int MainClient(char* argv[])
 		}
 	}
 	printf("Connected to server on %s:%s\n", global_serverIP, global_serverPort);
-	char** param = &argv[3];
+	char** param = argv[3];
 	char* send_me = writeMessage(CLIENT_REQUEST,NULL,param);
 	
 	TransferResult_t SendRes = SendString(send_me, m_socket);

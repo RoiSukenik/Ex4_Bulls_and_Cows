@@ -179,7 +179,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 			global_connected_clients_counter--;
 			// graceful close ?. close this thread.
 		}
-		else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
+		else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) == 0)
 		{
 			char* string = writeMessage("WRONG_INPUT", NULL, NULL);
 			SendRes = SendString(string, *t_socket);

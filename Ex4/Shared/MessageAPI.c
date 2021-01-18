@@ -82,18 +82,18 @@ char* writeMessage(char* MessageType, char** MessageParams,char* other)
 	retval = sprintf_s(message, buffer,"%s", MessageType);
 	int paramLength = sizeof(MessageParams) / sizeof(MessageParams[0]);
 	int i;
-	if (MessageParams == NULL)
+	if (MessageParams == NULL && other==NULL)
 	{
 		buffer = snprintf(NULL, 0, "%s\n", message) + 1;
 		message = realloc(message, buffer);
 		sprintf_s(message, buffer, "%s\n", message);
 		return message;
 	}
-	if (MessageType == SERVER_DENIED)
+	if (MessageType == SERVER_DENIED || MessageType == CLIENT_REQUEST || other!= NULL)
 	{
 		buffer = snprintf(NULL, 0, "%s:%s\n", message,other) + 1;
 		message = realloc(message, buffer);
-		sprintf_s(message, buffer, "%s:%s\n", message);
+		sprintf_s(message, buffer, "%s:%s\n", message,other);
 		return message;
 	}
 	for ( i = 0; i < paramLength; i++)
