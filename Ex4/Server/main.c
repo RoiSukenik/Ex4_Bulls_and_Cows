@@ -18,6 +18,5 @@ int main(int argc, char* argv[])
 	getMessageContent(returnmsg,&userName,&content);
 	
 
-	Manage_Server(argv);
-	return 0;
+	return Manage_Server(argv);
 }

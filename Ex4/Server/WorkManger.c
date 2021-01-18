@@ -2,9 +2,18 @@
 
 
 
-
 char* Manage_Server(char* argv[])
 {
+
+	Mutex_readfile = CreateMutex(
+		NULL,              // default security attributes
+		FALSE,             // initially not owned
+		NULL);             // unnamed mutex	
+	if (Mutex_readfile == NULL)	{
+		printf("CreateMutex error: %d\n", GetLastError());
+		return STATUS_CODE_FAILURE;
+	}
+
 	global_connected_clients_counter = 0;
 	global_playing_clients_counter = 0;
 	if((sizeof(argv) / sizeof(argv[0])) != NUMBER_OF_ARGV_ALLOWED) {return STATUS_CODE_FAILURE;}
@@ -53,7 +62,7 @@ char* Manage_Server(char* argv[])
 
 	}
 
-
+	return STATUS_CODE_SUCCESS;
 }
 static int FindFirstUnusedThreadSlot()
 {
@@ -81,148 +90,181 @@ static int FindFirstUnusedThreadSlot()
 }
 
 static DWORD ServiceThread(SOCKET* t_socket) {
-		char userName[MAX_USER_NAME_LEN];
-		TransferResult_t SendRes;
-		TransferResult_t RecvRes;
-		char* AcceptedStr = NULL;
-		if (Approve_new_player_to_server(t_socket, &userName) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-		while (true) {
-			// send	SERVER_MAIN_MENU message
-				SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
+	char userName[MAX_USER_NAME_LEN];
+	TransferResult_t SendRes;
+	TransferResult_t RecvRes;
+	char* AcceptedStr = NULL;
+	if (Approve_new_player_to_server(t_socket, &userName) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+	while (true) {
+		// send	SERVER_MAIN_MENU message
+		SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
+		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+
+		// recieve CLIENT_VERSUS or CLIENT_DISCONNECT
+		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+		if (strcmp(MessageType(AcceptedStr), CLIENT_DISCONNECT) == 0) {
+			global_connected_clients_counter--;
+			// graceful close ?. close this thread.
+		}
+		else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
+		{
+			char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+			SendRes = SendString(string, *t_socket);
+			free(string);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			global_connected_clients_counter--;
+			// did not get the expected client versus, close everything !
+		}
+		free(AcceptedStr);
+
+		if (global_connected_clients_counter == 1) {
+			// send	SERVER_NO_OPPONENTS message and ask the player to play again
+			SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			continue; // this will go directly to 
+		}
+		global_playing_clients_counter++;
+		bool flag_no_players_continue = false;
+		// "searching for opponent" "blocking function" 
+		//	untill the other connected client will press the play or press the quit
+		//  so we decide what to do.
+		while (global_playing_clients_counter < 2) {
+			if (global_connected_clients_counter == 1)
+			{
+				// one of the connected clients decided to leave, restart.
+				flag_no_players_continue = true;
+				break;
+			}
+		}
+		if (flag_no_players_continue == true) {
+			global_playing_clients_counter--;
+			SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			continue;
+		}
+
+
+
+		// open communication file now ! first to open also closes
+					/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
+					if (CommunictionFileCheck != NULL)
+					{
+						CommunictionFileHandle = CommunictionFileCheck;
+					}*/
+		char* other_client_userName = NULL;
+		other_client_userName = synced_blocking_read_commutication(userName, userName);
+		if (other_client_userName == NULL) { // error handle me }
+
+
+		// SERVER_INVITE:<other client username>
+			SendRes = SendString("ENTER HERE !!!!", *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			// free built line
+
+
+			SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+
+			RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+			if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+			if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
+				char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+				SendRes = SendString(string, *t_socket);
+				free(string);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+				global_connected_clients_counter--;
+				global_playing_clients_counter--;	//  not supposed to ever happen
+													// check what to close here
+				// graceful close ?. close this thread.
+			}
+			// save numbers to guess (player's numbers) in the common file
+			free(AcceptedStr);
+
+			while (true) {
+				SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
 				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
-			// recieve CLIENT_VERSUS or CLIENT_DISCONNECT
+
+
 				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				if (strcmp(MessageType(AcceptedStr), CLIENT_DISCONNECT) == 0) {
-					global_connected_clients_counter--;
-					Close_Socket(t_socket);
-				}
-				else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
-				{
+				if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
 					char* string = writeMessage("WRONG_INPUT", NULL, NULL);
 					SendRes = SendString(string, *t_socket);
 					free(string);
 					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					global_connected_clients_counter--;
-					// did not get the expected client versus, close everything !
-				}
-				free(AcceptedStr);
-
-				if (global_connected_clients_counter == 1) {
-				// send	SERVER_NO_OPPONENTS message and ask the player to play again
-					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					continue; // this will go directly to 
-				}
-				global_playing_clients_counter++;
-				bool flag_no_players_continue = false;
-				// "searching for opponent" "blocking function" 
-				//	untill the other connected client will press the play or press the quit
-				//  so we decide what to do.
-				while (global_playing_clients_counter < 2) {
-					if (global_connected_clients_counter == 1)
-					{ 
-						// one of the connected clients decided to leave, restart.
-						flag_no_players_continue = true;
-						break;
-					}
-				}
-				if (flag_no_players_continue == true) {
-					global_playing_clients_counter--;
-					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					continue;
-				}
-
-
-
-				// open communication file now ! first to open also closes
-							/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
-							if (CommunictionFileCheck != NULL)
-							{
-								CommunictionFileHandle = CommunictionFileCheck;
-							}*/
-
-
-
-				// SERVER_INVITE:<other client username>
-				SendRes = SendString("ENTER HERE !!!!", *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-				// free built line
-
-
-
-
-				SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-
-				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
-					char* string = writeMessage("WRONG_INPUT", NULL, NULL);
-					SendRes = SendString(string, *t_socket);
-					free(string);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					global_connected_clients_counter--;
-					global_playing_clients_counter--;	//  not supposed to ever happen
-														// check what to close here
+					// ?global_connected_clients_counter--;
+					// ?global_playing_clients_counter--;
 					// graceful close ?. close this thread.
 				}
-				// save numbers to guess (player's numbers) in the common file
+				// put guess in common file
+			// check guess and calculate results
+
 				free(AcceptedStr);
+				//SERVER_GAME_RESULTS + params
+				SendRes = SendString(" ENTER HERE ", *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+				// free allocation of SERVER_GAME_RESULTS + params
 
-				while (true) {
-					SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+				SendRes = SendString(SERVER_DRAW, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
-
-
-					RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-					if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-					if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
-						char* string = writeMessage("WRONG_INPUT", NULL, NULL);
-						SendRes = SendString(string, *t_socket);
-						free(string);
-						if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-						// ?global_connected_clients_counter--;
-						// ?global_playing_clients_counter--;
-						// graceful close ?. close this thread.
-					}
-					// put guess in common file
-				// check guess and calculate results
-
-					free(AcceptedStr);
-					//SERVER_GAME_RESULTS + params
-					SendRes = SendString(" ENTER HERE ", *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					// free allocation of SERVER_GAME_RESULTS + params
-
-					SendRes = SendString(SERVER_DRAW, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-
-					//	 if win
-					//	{
-					//	 announce win/draw
-					//
-					//// SERVER_WIN + PARAMS
-					//		SendRes = SendString("server win+params", *t_socket);
-					//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-					////	free allocation of SERVER_WIN + PARAMS
-					//   global_playing_clients_counter--;
-					//// break;
-					//	}
-					//  else if draw
-					//	{
-					//		SendRes = SendString(SERVER_DRAW, *t_socket);
-					//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-					//  global_playing_clients_counter--;
-					//// break;
-					////}
-				}
+				//	 if win
+				//	{
+				//	 announce win/draw
+				//
+				//// SERVER_WIN + PARAMS
+				//		SendRes = SendString("server win+params", *t_socket);
+				//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				////	free allocation of SERVER_WIN + PARAMS
+				//   global_playing_clients_counter--;
+				//// break;
+				//	}
+				//  else if draw
+				//	{
+				//		SendRes = SendString(SERVER_DRAW, *t_socket);
+				//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				//  global_playing_clients_counter--;
+				//// break;
+				////}
+			}
 
 		}
+	}
 }
+
+char* synced_blocking_read_commutication(char* username, char* content) {
+	bool local_written = false;
+	bool local_read = false;
+	DWORD wait_code;
+	while ((local_read == false) || (local_written == false)) {
+
+		wait_code = WaitForSingleObject(Mutex_readfile,	INFINITE);
+		if (wait_code != WAIT_OBJECT_0) {
+			return NULL;
+		}
+		if ((global_readme == false) && (local_written == false)) {
+			// write to file
+			global_readme = true;
+			local_written = true;
+		}
+		else if (global_readme == true)
+		{
+			// read and check its not me "<username>:"
+			// if its not me{
+
+				//other_client_userName = // read content
+
+			local_read = true;
+			global_readme = false;
+			// }//else do nothing
+		}	//else do nothing
+
+		if (!ReleaseMutex(Mutex_readfile)) { printf("Release Mutex error: %d\n", GetLastError()); return NULL; }
+	}
+}
+
 int RecvCheck(TransferResult_t RecvRes,SOCKET* t_socket,char* AcceptedStr)
 {
 	if (RecvRes == TRNS_FAILED)

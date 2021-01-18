@@ -36,18 +36,25 @@
 #define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
 
 #define PATH						"GameSession.txt"
+#define STATUS_CODE_FAILURE			-1
+#define STATUS_CODE_SUCCESS			 0
+
 
 int global_connected_clients_counter;	// amount of users connected to the server
 int global_playing_clients_counter;		// amount of users that want to play (clicked '1')
 
+volatile HANDLE Mutex_readfile;
+bool global_readme = false;
 
 
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
 HANDLE CommunictionFileHandle;
 SOCKET ThreadInputs[NUM_OF_WORKER_THREADS];
-volatile HANDLE Mutex_que;
+
 
 char* Manage_Server(char* argv[]);
+
+char* synced_blocking_read_commutication(char* username, char* content);
 
 static int FindFirstUnusedThreadSlot();
 
