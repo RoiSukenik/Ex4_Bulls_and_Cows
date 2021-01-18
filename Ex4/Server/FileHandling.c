@@ -90,3 +90,34 @@ int write_to_file(HANDLE gameLog, char* string)
 //	ReleaseSemaphore(communication_semaphore, 1, NULL);
 //	return string_from_file;
 //}
+int critical_read_code(HANDLE gameLog,char* read_line)
+{
+	
+
+	int setfile_returned_value = SetFilePointer(
+		gameLog,
+		0,
+		NULL,
+		FILE_BEGIN);
+	if (setfile_returned_value == INVALID_SET_FILE_POINTER) {
+		printf("SetFilePointer failed in hte request, printing last ERROR = %d\n", GetLastError());
+		CloseHandle(gameLog);
+		return STATUS_CODE_FAILURE;
+	}
+	DWORD      nNumberOfBytesToRead = MAX_STR_LEN;
+	DWORD      lpNumberOfBytesRead;
+
+	setfile_returned_value = ReadFile(gameLog,
+		read_line,
+		nNumberOfBytesToRead,
+		&lpNumberOfBytesRead,
+		NULL);
+	if (setfile_returned_value == 0) {
+		printf("ReadFile Failed on request, last error reveived : %d \n", GetLastError());
+		free(read_line);
+		CloseHandle(gameLog);
+		return STATUS_CODE_FAILURE;
+	}
+	errno_t ret_val = CloseHandle(gameLog);
+	if (ret_val == 0) printf("oh no");
+}
