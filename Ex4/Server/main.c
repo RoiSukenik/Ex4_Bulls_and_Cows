@@ -9,14 +9,7 @@ Multi-Threading, Semaphore, Mutex and Network Protocals - in perticular the use 
 #include "FileHandling.h"
 int main(int argc, char* argv[])
 {
-	char* userName = "Tom";
-	char* message = "Im home";
-	char* returnmsg =NULL;
-	fileMessageFormatter(userName, message, returnmsg);
-	char otheruserName[MAX_USER_NAME_LEN];
-	char content[500];
-	getMessageContent(returnmsg,&userName,&content);
-	
 
 	return Manage_Server(argv);
+	return STATUS_CODE_SUCCESS;
 }

@@ -14,12 +14,11 @@
 
 
 
+#define PATH						"GameSession.txt"
 
 
 
+int write_to_file( char* string);
+int critical_read_code( char* read_line);
 
-int write_to_file(HANDLE gameLog, char* string);
-int critical_read_code(HANDLE gameLog, char* read_line);
-int fileMessageFormatter(char* userName, char* message, char* p_formatted_message_returned);
-int getMessageContent(char* message, char* writerUserName, char* content);
 #endif // !FILE_HANDLING_DOT_H
