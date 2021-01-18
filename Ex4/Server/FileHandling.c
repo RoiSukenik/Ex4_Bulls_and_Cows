@@ -13,7 +13,7 @@ int write_to_file(char* string)
 		return STATUS_CODE_FAILURE;
 	}
 	return_val = SetFilePointer(gameLog, 0, NULL, FILE_BEGIN);//set pointer to end of file. threads start writing from this point
-	if (return_val == INVALID_SET_FILE_POINTER) {
+	if(return_val == INVALID_SET_FILE_POINTER) {
 		printf("Last Error = %d\n ", GetLastError());
 		return STATUS_CODE_FAILURE;
 	}

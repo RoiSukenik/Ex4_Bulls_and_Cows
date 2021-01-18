@@ -2,13 +2,13 @@
 #ifndef WORK_MANAGER_DOT_H
 #define WORK_MANAGER_DOT_H
 
-#include <conio.h>
+
 #include "NetworkInterface.h"
 #include "SocketSendRecvTools.h"
 #include "bulls_and_cows_logic.h"
 #include "MessageAPI.h"
 #include "FileHandling.h"
-
+#include <conio.h>
 
 #define MAX_STR_LEN 55
 #define STATUS_CODE_EXIT -2
@@ -46,11 +46,11 @@
 #define STATUS_CODE_SUCCESS			 0
 
 
-int global_connected_clients_counter;	// amount of users connected to the server
-int global_playing_clients_counter;		// amount of users that want to play (clicked '1')
+int global_connected_clients_counter ;	// amount of users connected to the server
+int global_playing_clients_counter ;		// amount of users that want to play (clicked '1')
 
-volatile HANDLE Mutex_readfile;
-bool global_readme = false;
+HANDLE Mutex_readfile;
+bool global_readme;
 
 
 HANDLE ThreadHandles[NUM_OF_WORKER_THREADS];
@@ -65,8 +65,9 @@ char* synced_blocking_read_commutication(char* username, char* content);
 static int FindFirstUnusedThreadSlot();
 
 static DWORD ServiceThread(SOCKET* t_socket);
+int checkForExit();
 
-int checkFileExistsElseCreate();
+
 
 int Approve_new_player_to_server(SOCKET* Client, char* p_userName);
-#endif // WORK_MANAGER_DOT_H
+#endif//!WORK_MANAGER_DOT_H

@@ -64,7 +64,8 @@ char* Manage_Server(char* argv[])
 		NULL
 	);
 
-
+	global_readme = false;
+	Mutex_readfile = NULL;
 	Mutex_readfile = CreateMutex(
 		NULL,              // default security attributes
 		FALSE,             // initially not owned
@@ -82,7 +83,7 @@ char* Manage_Server(char* argv[])
 	for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
 		ThreadHandles[Ind] = NULL;
 	int port = strtol(argv[1], &ptr, 10);
-	char* retval = NULL;
+	int retval = NULL;
 	Initialize_WinSock();
 	SOCKET MainSocket = Create_Socket();
 	retval = Bind_Socket(MainSocket, port);

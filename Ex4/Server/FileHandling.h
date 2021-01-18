@@ -1,3 +1,4 @@
+#pragma once
 #ifndef FILE_HANDLING_DOT_H
 #define	FILE_HANDLING_DOT_H
 
@@ -20,5 +21,5 @@
 
 int write_to_file( char* string);
 int critical_read_code( char* read_line);
-void DeleteFileByThread()
+void DeleteFileByThread();
 #endif // !FILE_HANDLING_DOT_H
