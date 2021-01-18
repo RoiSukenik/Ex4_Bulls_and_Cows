@@ -18,8 +18,8 @@ int write_to_file(HANDLE gameLog, char* string)
 	}
 	return STATUS_CODE_SUCSESS;
 }
-
-// state 1 = First Player | state 2 = Second Player | state 3 = server action
+//
+//
 //char* critical_section(int* my_state, char* string_to_write,HANDLE communication_semaphore, HANDLE gameLog ,char* path) {
 //	WaitForSingleObject(communication_semaphore, WAIT_15_SECONDS);
 //	int retval;
@@ -53,35 +53,35 @@ int write_to_file(HANDLE gameLog, char* string)
 //				ReleaseSemaphore(communication_semaphore, 1, NULL);
 //				return NULL;
 //			}
-//			return_val = SetFilePointer(session_file, 0, NULL, FILE_BEGIN);// set pointer to line for reading
+//			return_val = SetFilePointer(gameLog, 0, NULL, FILE_BEGIN);// set pointer to line for reading
 //			if (return_val == INVALID_SET_FILE_POINTER) {
 //				printf("set file pointer failed error code = %d\n", GetLastError());
 //				free(string_from_file);
 //				ReleaseSemaphore(communication_semaphore, 1, NULL);
 //				return NULL;
 //			}
-//			ret_val = ReadFile(session_file, string_from_file, MAX_STR_LENGHT, &read_bytes, NULL);// read number from file
-//			if (ret_val == 0) {
+//			retval = ReadFile(gameLog, string_from_file, MAX_STR_LEN, &read_bytes, NULL);// read number from file
+//			if (retval == 0) {
 //				printf("ReadFile Failed error code = %d\n", GetLastError());
 //				free(string_from_file);
 //				ReleaseSemaphore(communication_semaphore, 1, NULL);
 //				return NULL;
 //			}
 //			if (critical_section_counter == 2) {
-//				return_val = SetFilePointer(session_file, 0, NULL, FILE_BEGIN);// set pointer to line for reading
+//				return_val = SetFilePointer(gameLog, 0, NULL, FILE_BEGIN);// set pointer to line for reading
 //				if (return_val == INVALID_SET_FILE_POINTER) {
 //					printf("set file pointer failed error code = %d\n", GetLastError());
 //					free(string_from_file);
 //					ReleaseSemaphore(communication_semaphore, 1, NULL);
 //					return NULL;
 //				}
-//				SetEndOfFile(session_file);
+//				SetEndOfFile(gameLog);
 //			}
 //		}
 //		if (critical_section_counter != 2) {
-//			write_to_file(session_file, string_to_write);
+//			write_to_file(gameLog, string_to_write);
 //		}
-//		turn = 3 - *my_turn;
+//		state = 3 - *my_state;
 //		critical_section_counter++;
 //		if (critical_section_counter == 3) {
 //			critical_section_counter = 0;

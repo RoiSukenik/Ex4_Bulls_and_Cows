@@ -123,9 +123,9 @@ void freeParamList(char** messageParams)
 	int i = 0;
 	while (i < paramLength)
 	{
-		free(*messageParams[i]);
+		free(messageParams);
 		i++;
 	}
-	free(messageParams);
+	messageParams = NULL;
 }
 

@@ -81,34 +81,11 @@ static int FindFirstUnusedThreadSlot()
 }
 
 static DWORD ServiceThread(SOCKET* t_socket) {
-	
-	TransferResult_t SendRes;
-	TransferResult_t RecvRes;
-	
-	char userName[MAX_USER_NAME_LEN];
-	char* AcceptedStr = NULL;
-	// recieve CLIENT_REQUEST
-		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-		if (strcmp(MessageType(AcceptedStr), CLIENT_REQUEST) != 0) {
-			char* string = writeMessage("WRONG_INPUT", NULL, NULL);
-			SendRes = SendString(string, *t_socket);
-			free(string);
-			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-			global_connected_clients_counter--;
-			Close_Socket(t_socket);
-			Close_WinSock();
-		}
-	// save username and free
-		char** params = MessageParams(AcceptedStr);
-		strcpy_s(userName,sizeof(userName), params[0]);
-		freeParamList(params);
-		free(AcceptedStr);
-
-	// send SERVER_APPROVED message
-		SendRes = SendString(SERVER_APPROVED, *t_socket);
-		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-
+		char userName[MAX_USER_NAME_LEN];
+		TransferResult_t SendRes;
+		TransferResult_t RecvRes;
+		char* AcceptedStr = NULL;
+		if (Approve_new_player_to_server(t_socket, &userName) == STATUS_CODE_SUCSESS) {}
 		while (true) {
 			// send	SERVER_MAIN_MENU message
 				SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
@@ -251,13 +228,13 @@ int RecvCheck(TransferResult_t RecvRes,SOCKET* t_socket,char* AcceptedStr)
 	if (RecvRes == TRNS_FAILED)
 	{
 		printf("Service socket error while reading, closing thread.\n");
-		closesocket(*t_socket);
+		closesocket(t_socket);
 		return STATUS_CODE_FAILURE;
 	}
 	else if (RecvRes == TRNS_DISCONNECTED)
 	{
 		printf("Connection closed while reading, closing thread.\n");
-		closesocket(*t_socket);
+		closesocket(t_socket);
 		return STATUS_CODE_FAILURE;
 	}
 	else
@@ -271,9 +248,10 @@ int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
 	if (SendRes == TRNS_FAILED)
 	{
 		printf("Service socket error while writing, closing thread.\n");
-		closesocket(*t_socket);//FIXME -Gentle CLOSE NEEDED
+		closesocket(t_socket);//FIXME -Gentle CLOSE NEEDED
 		return STATUS_CODE_FAILURE;
 	}
+	return STATUS_CODE_SUCSESS;
 }
 
 HANDLE checkFileExistsElseCreate(void)
@@ -314,5 +292,36 @@ int checkForExit()
 			Sleep(SLEEP_TIME);
 	}
 	//clean_working_threads();
+	return STATUS_CODE_SUCSESS;
+}
+
+int Approve_new_player_to_server(SOCKET* Client, char* p_userName)
+{
+	TransferResult_t SendRes;
+	TransferResult_t RecvRes;
+	char userName[MAX_USER_NAME_LEN];
+	char* AcceptedStr = NULL;
+	// recieve CLIENT_REQUEST
+	RecvRes = ReceiveString(&AcceptedStr, *Client);
+	if (RecvCheck(RecvRes, *Client, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+	if (strcmp(MessageType(AcceptedStr), CLIENT_REQUEST) != 0) {
+		char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+		SendRes = SendString(string, *Client);
+		free(string);
+		if (SendCheck(SendRes, *Client) != STATUS_CODE_SUCSESS) { Close_Socket(Client); Close_WinSock(); return STATUS_CODE_FAILURE; }
+		global_connected_clients_counter--;
+		Close_Socket(Client);
+		Close_WinSock();
+		return STATUS_CODE_FAILURE;
+	}
+	// save username and free
+	char** params = MessageParams(AcceptedStr);
+	strcpy_s(p_userName, sizeof(userName), params[0]);
+	freeParamList(params);
+	free(AcceptedStr);
+
+	// send SERVER_APPROVED message
+	SendRes = SendString(SERVER_APPROVED, *Client);
+	if (SendCheck(SendRes, *Client) != STATUS_CODE_SUCSESS) { Close_Socket(Client); Close_WinSock(); return STATUS_CODE_FAILURE; }
 	return STATUS_CODE_SUCSESS;
 }

@@ -55,4 +55,5 @@ static DWORD ServiceThread(SOCKET* t_socket);
 
 HANDLE checkFileExistsElseCreate(void);
 
+int Approve_new_player_to_server(SOCKET* Client, char* p_userName);
 #endif // !WORK_MANAGER_DOT_H
