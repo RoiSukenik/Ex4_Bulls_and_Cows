@@ -8,7 +8,7 @@
 #include "FileHandling.h"
 #include <conio.h>
 
-
+#define MAX_STR_LEN 55
 
 
 #define NUM_OF_WORKER_THREADS		2
