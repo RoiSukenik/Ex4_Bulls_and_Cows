@@ -1,8 +1,12 @@
 #include "WorkManager.h"
 
+
+
+
 char* Manage_Server(char* argv[])
 {
-	
+	global_connected_clients_counter = 0;
+	global_playing_clients_counter = 0;
 	if((sizeof(argv) / sizeof(argv[0])) != NUMBER_OF_ARGV_ALLOWED) {return STATUS_CODE_FAILURE;}
 	char* ptr;
 	int Ind,Loop;
@@ -30,6 +34,7 @@ char* Manage_Server(char* argv[])
 		}
 		else
 		{
+			global_connected_clients_counter++;
 			ThreadInputs[Ind] = AcceptSocket; // shallow copy: don't close 
 											  // AcceptSocket, instead close 
 											  // ThreadInputs[Ind] when the
@@ -79,39 +84,151 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	printf("im in");
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
-	/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
-	if (CommunictionFileCheck != NULL)
-	{
-		CommunictionFileHandle = CommunictionFileCheck;
-	}*/
 	char userName[MAX_USER_NAME_LEN];
-	while (TRUE)
-	{
-		char* AcceptedStr = NULL;
+	char* AcceptedStr = NULL;
+	// recieve CLIENT_REQUEST
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-		char* messageType = MessageType(AcceptedStr);
-		char** messageParameters = MessageParams(AcceptedStr);
-
-		if (messageType == CLIENT_REQUEST)
-		{
-			
-			strcpy_s(userName, sizeof(*messageParameters[0]), *messageParameters[0]);
-			freeParamList(messageParameters);
-			free(AcceptedStr);
-			SendRes = SendString(SERVER_APPROVED, *t_socket);
-			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) {return STATUS_CODE_FAILURE;}
-			SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
-			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+		if (strstr(AcceptedStr, CLIENT_REQUEST) == NULL) {
+			printf("Error_1\n");
+			global_connected_clients_counter--;
+			// print error close connection ?	
+			// graceful close ?
 		}
-		if (messageType == CLIENT_VERSUS)
-		{
-			
+	// save username and free
+		free(AcceptedStr);
+
+	// send SERVER_APPROVED message
+		SendRes = SendString(SERVER_APPROVED, *t_socket);
+		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+
+		while (true) {
+			// send	SERVER_MAIN_MENU message
+				SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+
+			// recieve CLIENT_VERSUS or CLIENT_DISCONNECT
+				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				if (strstr(AcceptedStr, CLIENT_DISCONNECT) != NULL) {
+					global_connected_clients_counter--;
+					// graceful close ?. close this thread.
+				}
+				else if (strstr(AcceptedStr, CLIENT_VERSUS) == NULL)
+				{
+					printf("Error_2\n");
+					global_connected_clients_counter--;
+					// did not get the expected client versus, close everything !
+				}
+				free(AcceptedStr);
+
+				if (global_connected_clients_counter == 1) {
+				// send	SERVER_NO_OPPONENTS message and ask the player to play again
+					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					continue; // this will go directly to 
+				}
+				global_playing_clients_counter++;
+				bool flag_no_players_continue = false;
+				// "searching for opponent" "blocking function" 
+				//	untill the other connected client will press the play or press the quit
+				//  so we decide what to do.
+				while (global_playing_clients_counter < 2) {
+					if (global_connected_clients_counter == 1)
+					{ 
+						// one of the connected clients decided to leave, restart.
+						flag_no_players_continue = true;
+						break;
+					}
+				}
+				if (flag_no_players_continue == true) {
+					global_playing_clients_counter--;
+					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					continue;
+				}
+
+
+
+				// open communication file now ! first to open also closes
+							/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
+							if (CommunictionFileCheck != NULL)
+							{
+								CommunictionFileHandle = CommunictionFileCheck;
+							}*/
+
+
+
+				// SERVER_INVITE:<other client username>
+				SendRes = SendString("ENTER HERE !!!!", *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				// free built line
+
+
+
+
+				SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+
+				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				if (strstr(AcceptedStr, CLIENT_SETUP) == NULL) {
+					printf("Error_3\n");
+					global_connected_clients_counter--;
+					global_playing_clients_counter--;	//  not supposed to ever happen
+														// check what to close here
+					// graceful close ?. close this thread.
+				}
+				// save numbers to guess (player's numbers) in the common file
+				free(AcceptedStr);
+
+				while (true) {
+					SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+
+
+
+					RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+					if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (strstr(AcceptedStr, CLIENT_PLAYER_MOVE) == NULL) {
+						printf("Error_4\n");
+						// ?global_connected_clients_counter--;
+						// ?global_playing_clients_counter--;
+						// graceful close ?. close this thread.
+					}
+					// put guess in common file
+				// check guess and calculate results
+
+					free(AcceptedStr);
+					//SERVER_GAME_RESULTS + params
+					SendRes = SendString(" ENTER HERE ", *t_socket);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					// free allocation of SERVER_GAME_RESULTS + params
+
+					SendRes = SendString(SERVER_DRAW, *t_socket);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+
+					//	 if win
+					//	{
+					//	 announce win/draw
+					//
+					//// SERVER_WIN + PARAMS
+					//		SendRes = SendString("server win+params", *t_socket);
+					//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					////	free allocation of SERVER_WIN + PARAMS
+					//   global_playing_clients_counter--;
+					//// break;
+					//	}
+					//  else if draw
+					//	{
+					//		SendRes = SendString(SERVER_DRAW, *t_socket);
+					//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					//  global_playing_clients_counter--;
+					//// break;
+					////}
+				}
+
 		}
-		
-
-	}
-
 }
 int RecvCheck(TransferResult_t RecvRes,SOCKET* t_socket,char* AcceptedStr)
 {
