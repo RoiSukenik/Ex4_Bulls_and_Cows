@@ -80,7 +80,7 @@ static DWORD RecvDataThread(void)
 			char** params = MessageParams(AcceptedStr);
 			if (params == STATUS_CODE_FAILURE) { return STATUS_CODE_FAILURE;}
 			// print
-			printf("Bulls: %s\nCows: %s\n%s played: %s\n", *params[0], *params[1], *params[2], *params[3]);
+			printf("Bulls: %s\nCows: %s\n%s played: %s\n", params[0], params[1], params[2], params[3]);
 			// free
 			for (int i = 0; i < 4; i++) {free(params[i]);}
 			free(params);

@@ -53,7 +53,7 @@ int init_userid(player_strct* player, char* userid);
 • Parameters	–	the secret number to work on and the guess we will check
 • Returns		–	the number of cows guessed
 */
-int check_cows(char* secret[GAME_NUM_LENGHT_PLUS_EOS], char* guess[GAME_NUM_LENGHT_PLUS_EOS]);
+char check_cows(char* secret, char* guess);
 
 
 /*
@@ -61,7 +61,7 @@ int check_cows(char* secret[GAME_NUM_LENGHT_PLUS_EOS], char* guess[GAME_NUM_LENG
 • Parameters	–	the secret number to work on and the guess we will check
 • Returns		–	the number of bulls guessed
 */
-int check_bulls(char* secret[GAME_NUM_LENGHT_PLUS_EOS], char* guess[GAME_NUM_LENGHT_PLUS_EOS]);
+char check_bulls(char* secret, char* guess);
 
 
 

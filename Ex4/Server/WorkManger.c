@@ -91,6 +91,16 @@ static int FindFirstUnusedThreadSlot()
 
 static DWORD ServiceThread(SOCKET* t_socket) {
 	char userName[MAX_USER_NAME_LEN];
+	char* his_userName = NULL;
+	char* my_secret_number = NULL;
+	char* his_secret_number = NULL;
+	char* my_guess = NULL;
+	char* his_guess = NULL;
+	char my_bulls  = NULL;
+	char my_cows   = NULL;
+	char his_bulls = NULL;
+	char his_cows  = NULL;
+
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
 	char* AcceptedStr = NULL;
@@ -144,95 +154,122 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 			continue;
 		}
 
-
-
 		// open communication file now ! first to open also closes
 					/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
 					if (CommunictionFileCheck != NULL)
 					{
 						CommunictionFileHandle = CommunictionFileCheck;
 					}*/
-		char* other_client_userName = NULL;
-		other_client_userName = synced_blocking_read_commutication(userName, userName);
-		if (other_client_userName == NULL) { // error handle me }
+		his_userName = synced_blocking_read_commutication(userName, userName);
+		if (his_userName == NULL) { // error handle me 
+		}
+
+		char* sendme = NULL;
+		sendme = writeMessage(SERVER_INVITE, NULL, his_userName); if (sendme == NULL) { printf("ERROR 9000 !\n"); }
+		SendRes = SendString(sendme, *t_socket);
+		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+		free(sendme);
+
+		SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
+		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+
+		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
+		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+		if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
+			char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+			SendRes = SendString(string, *t_socket);
+			free(string);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			global_connected_clients_counter--;
+			global_playing_clients_counter--;	//  not supposed to ever happen
+												// check what to close here
+			// graceful close ?. close this thread.
+		}
+		my_secret_number = MessageParams(AcceptedStr)[0];
+		free(AcceptedStr);
+
+		his_secret_number = synced_blocking_read_commutication(userName, my_secret_number);
+		if (his_secret_number == NULL) { // error handle me 
+		}
 
 
-		// SERVER_INVITE:<other client username>
-			SendRes = SendString("ENTER HERE !!!!", *t_socket);
-			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-			// free built line
-
-
-			SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
-			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+		while (true) {
+			SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 			RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 			if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-			if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
+			if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
 				char* string = writeMessage("WRONG_INPUT", NULL, NULL);
 				SendRes = SendString(string, *t_socket);
 				free(string);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-				global_connected_clients_counter--;
-				global_playing_clients_counter--;	//  not supposed to ever happen
-													// check what to close here
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+				// ?global_connected_clients_counter--;
+				// ?global_playing_clients_counter--;
 				// graceful close ?. close this thread.
 			}
-			// save numbers to guess (player's numbers) in the common file
-			free(AcceptedStr);
-
-			while (true) {
-				SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-
-
-
-				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
-				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
-					char* string = writeMessage("WRONG_INPUT", NULL, NULL);
-					SendRes = SendString(string, *t_socket);
-					free(string);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-					// ?global_connected_clients_counter--;
-					// ?global_playing_clients_counter--;
-					// graceful close ?. close this thread.
-				}
-				// put guess in common file
-			// check guess and calculate results
-
-				free(AcceptedStr);
-				//SERVER_GAME_RESULTS + params
-				SendRes = SendString(" ENTER HERE ", *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-				// free allocation of SERVER_GAME_RESULTS + params
-
-				SendRes = SendString(SERVER_DRAW, *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
-
-				//	 if win
-				//	{
-				//	 announce win/draw
-				//
-				//// SERVER_WIN + PARAMS
-				//		SendRes = SendString("server win+params", *t_socket);
-				//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				////	free allocation of SERVER_WIN + PARAMS
-				//   global_playing_clients_counter--;
-				//// break;
-				//	}
-				//  else if draw
-				//	{
-				//		SendRes = SendString(SERVER_DRAW, *t_socket);
-				//		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				//  global_playing_clients_counter--;
-				//// break;
-				////}
+			my_guess = MessageParams(AcceptedStr)[0];
+			
+			his_guess = synced_blocking_read_commutication(userName, my_guess);
+			if (his_guess == NULL) { // error handle me 
 			}
 
-		}
+			// check guess and calculate results
+			my_bulls  = check_bulls(his_secret_number, my_guess);
+			my_cows   = check_cows (his_secret_number, my_guess);
+			his_bulls = check_bulls(my_secret_number, his_guess);
+			his_cows  = check_cows (my_secret_number, his_guess);
+			free(my_guess, his_guess);
+
+			char** params[4];
+		
+			params[0] = &my_bulls;
+			params[1] = &my_cows;
+			params[2] = his_userName;
+			params[3] = his_guess;
+			
+			free(AcceptedStr);
+			sendme = writeMessage(SERVER_GAME_RESULTS, params, NULL);
+			SendRes = SendString(sendme, *t_socket);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+			free(sendme);
+
+			if ((my_bulls == '4') && (his_bulls == '4')) {
+				SendRes = SendString(SERVER_DRAW, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { free(his_userName); Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
+				break;
+			}
+			else if (my_bulls == '4') {
+			//// SERVER_WIN + PARAMS
+				char** win_params[2];
+				win_params[0] = userName;
+				win_params[1] = his_secret_number;
+				sendme = writeMessage(SERVER_WIN, win_params, NULL);
+				SendRes = SendString(sendme, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				//	free allocation of SERVER_WIN + PARAMS
+				global_playing_clients_counter--;
+				free(sendme);
+				break;
+			} 
+			else if (his_bulls == '4') {
+				// he win 
+				char** win_params[2];
+				win_params[0] = his_userName;
+				win_params[1] = his_secret_number;
+				sendme = writeMessage(SERVER_WIN, win_params, NULL);
+				SendRes = SendString(sendme, *t_socket);
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				//	free allocation of SERVER_WIN + PARAMS
+				global_playing_clients_counter--;
+				free(sendme);
+				break;
+			}
+		} // while (true) untill someone wins
+
 	}
 }
+
 
 char* synced_blocking_read_commutication(char* username, char* content) {
 	bool local_written = false;

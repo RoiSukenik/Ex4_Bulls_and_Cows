@@ -3,6 +3,7 @@
 
 #include "NetworkInterface.h"
 #include "SocketSendRecvTools.h"
+#include "bulls_and_cows_logic.h"
 #include "MessageAPI.h"
 #include <conio.h>
 
