@@ -85,7 +85,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		TransferResult_t SendRes;
 		TransferResult_t RecvRes;
 		char* AcceptedStr = NULL;
-		if (Approve_new_player_to_server(t_socket, &userName) == STATUS_CODE_SUCSESS) {}
+		if (Approve_new_player_to_server(t_socket, &userName) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 		while (true) {
 			// send	SERVER_MAIN_MENU message
 				SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
