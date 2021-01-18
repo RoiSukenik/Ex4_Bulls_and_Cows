@@ -20,5 +20,5 @@
 
 int write_to_file( char* string);
 int critical_read_code( char* read_line);
-
+void DeleteFileByThread()
 #endif // !FILE_HANDLING_DOT_H

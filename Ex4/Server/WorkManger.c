@@ -1,9 +1,69 @@
 #include "WorkManager.h"
 
 
+int checkForExit()
+{
+
+
+	char exit_word[EXIT_WORD_LEN + 1];
+	while (TRUE) {
+		if (_kbhit() != 0) {
+			scanf_s(" %s", exit_word, EXIT_WORD_LEN + 1);
+			if (strcmp(exit_word, EXIT_WORD) == 0)
+			{
+				printf("exiting by users...\n");
+				break;
+			}
+		}
+		else
+			Sleep(SLEEP_TIME);
+	}
+	//clean_working_threads();
+	return STATUS_CODE_EXIT;
+}
+static void clean_working_threads(SOCKET* Sock)
+{
+	int Ind;
+	
+	for (Ind = 0; Ind <= NUM_OF_WORKER_THREADS; Ind++)
+	{
+		if (ThreadHandles[Ind] != NULL)
+		{
+			// poll to check if thread finished running:
+			DWORD Res = WaitForSingleObject(ThreadHandles[Ind],THREAD_MAX_WAIT);
+
+			if (Res == WAIT_OBJECT_0)
+			{
+				
+				CloseHandle(ThreadHandles[Ind]);
+				ThreadHandles[Ind] = NULL;
+				continue;
+			}
+			else
+			{
+				printf("Waiting for thread failed. Teminating Thread\n");
+				TerminateThread(ThreadHandles[Ind], TERMINATE_NOW);
+				ThreadHandles[Ind] = NULL;
+				
+			}
+		}
+	}
+	
+	Close_Socket(Sock);
+}
 
 char* Manage_Server(char* argv[])
 {
+	HANDLE exitThread = NULL;
+	exitThread = CreateThread(
+		NULL,
+		0,
+		(LPTHREAD_START_ROUTINE)checkForExit,
+		NULL,
+		0,
+		NULL
+	);
+
 
 	Mutex_readfile = CreateMutex(
 		NULL,              // default security attributes
@@ -100,6 +160,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	char my_cows   = NULL;
 	char his_bulls = NULL;
 	char his_cows  = NULL;
+	int open = STATUS_CODE_FAILURE;
 
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
@@ -155,11 +216,8 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		}
 
 		// open communication file now ! first to open also closes
-					/*HANDLE CommunictionFileCheck = checkFileExistsElseCreate();
-					if (CommunictionFileCheck != NULL)
-					{
-						CommunictionFileHandle = CommunictionFileCheck;
-					}*/
+		open = checkFileExistsElseCreate();
+		
 		his_userName = synced_blocking_read_commutication(userName, userName);
 		if (his_userName == NULL) { // error handle me 
 		}
@@ -268,6 +326,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 		} // while (true) untill someone wins
 
 	}
+	if (open == STATUS_CODE_SUCCESS) { DeleteFileByThread(); }
 }
 
 
@@ -346,46 +405,27 @@ int SendCheck(TransferResult_t SendRes, SOCKET* t_socket)
 	return STATUS_CODE_SUCSESS;
 }
 
-HANDLE checkFileExistsElseCreate(void)
+int checkFileExistsElseCreate()
 {
 	HANDLE file_handle = NULL;
 	file_handle = CreateFileA(PATH, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file_handle == INVALID_HANDLE_VALUE) {
 		printf("Read request failed, Last Error = %s\n ", GetLastError());
-		return file_handle;
+		return STATUS_CODE_FAILURE;
 	}
 	else if (file_handle == ERROR_FILE_EXISTS)
 	{
 		printf("Read request failed, Last Error = %s\n ", GetLastError());
-		return file_handle;
+		return STATUS_CODE_FAILURE;
 	}
 	else
 	{
-		return file_handle;
+		return STATUS_CODE_SUCCESS;
 	}
 	
 }
 
-int checkForExit()
-{
-	HANDLE exitThread;
 
-	char exit_word[EXIT_WORD_LEN + 1];
-	while (TRUE) {
-		if (_kbhit() != 0) {
-			scanf_s(" %s", exit_word, EXIT_WORD_LEN + 1);
-			if (strcmp(exit_word, EXIT_WORD) == 0)
-			{
-				printf("exiting by users...\n");
-				break;
-			}
-		}
-		else
-			Sleep(SLEEP_TIME);
-	}
-	//clean_working_threads();
-	return STATUS_CODE_SUCSESS;
-}
 
 int Approve_new_player_to_server(SOCKET* Client, char* p_userName)
 {
