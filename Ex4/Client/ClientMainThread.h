@@ -29,7 +29,7 @@ Last updated by Amnon Drory, Winter 2011.
 #define CLIENT_VERSUS				"CLIENT_VERSUS\n"			// \n here notice
 #define CLIENT_SETUP				"CLIENT_SETUP"
 #define CLIENT_PLAYER_MOVE			"CLIENT_PLAYER_MOVE"
-
+#define	WRONG_INPUT					"WRONG_INPUT"
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCCESS 0
 

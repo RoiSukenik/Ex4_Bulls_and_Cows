@@ -8,10 +8,11 @@
 
 #define STATUS_CODE_FAILURE -1
 #define STATUS_CODE_SUCSESS  0
+#define SERVER_DENIED				"SERVER_DENIED"
 
 char* MessageType(char* string);
 char** MessageParams(char* string);
-char* writeMessage(char* MessageType, char* MessageParams[]);
+char* writeMessage(char* MessageType, char** MessageParams, char* other);
 void freeParamList(char** messageParams);
 
 #endif // !MESSAGEAPI_DOT_H

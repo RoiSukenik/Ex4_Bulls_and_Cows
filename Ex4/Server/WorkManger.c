@@ -26,9 +26,10 @@ char* Manage_Server(char* argv[])
 		
 		if (Ind == NUM_OF_WORKER_THREADS) //no slot is available
 		{
-			SendRes = SendString(SERVER_DENIED, MainSocket);
-			if (SendCheck(SendRes, MainSocket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-			printf("No slots available for client, dropping the connection.\n");
+			char* string = writeMessage(SERVER_DENIED, NULL, "No slots available for client, dropping the connection.\n");
+			SendRes = SendString(string, MainSocket);
+			free(string);
+			if (SendCheck(SendRes, MainSocket) != STATUS_CODE_SUCSESS) { Close_Socket(MainSocket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 			Close_Socket(AcceptSocket); //Closing the socket, dropping the connection.
 			break;
 		}
@@ -47,8 +48,12 @@ char* Manage_Server(char* argv[])
 				0,
 				NULL
 			);
-			printf("Thread opened");
-			Sleep(60000);
+			printf("Thread opened\n");
+			Close_Socket(MainSocket);
+			Close_WinSock();
+			for (Ind = 0; Ind < NUM_OF_WORKER_THREADS; Ind++)
+				free(ThreadHandles[Ind]);
+		
 		}
 
 	}
@@ -84,17 +89,20 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 	
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
-	SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
+	
 	char userName[MAX_USER_NAME_LEN];
 	char* AcceptedStr = NULL;
 	// recieve CLIENT_REQUEST
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 		if (strcmp(MessageType(AcceptedStr), CLIENT_REQUEST) != 0) {
-			SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
+			char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+			SendRes = SendString(string, *t_socket);
+			free(string);
+			if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 			global_connected_clients_counter--;
-			// print error close connection ?	
-			// graceful close ?
+			Close_Socket(t_socket);
+			Close_WinSock();
 		}
 	// save username and free
 		char** params = MessageParams(AcceptedStr);
@@ -104,12 +112,12 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 	// send SERVER_APPROVED message
 		SendRes = SendString(SERVER_APPROVED, *t_socket);
-		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+		if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 		while (true) {
 			// send	SERVER_MAIN_MENU message
 				SendRes = SendString(SERVER_MAIN_MENU, *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 			// recieve CLIENT_VERSUS or CLIENT_DISCONNECT
 				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
@@ -120,7 +128,10 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 				}
 				else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
 				{
-					SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
+					char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+					SendRes = SendString(string, *t_socket);
+					free(string);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 					global_connected_clients_counter--;
 					// did not get the expected client versus, close everything !
 				}
@@ -129,7 +140,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 				if (global_connected_clients_counter == 1) {
 				// send	SERVER_NO_OPPONENTS message and ask the player to play again
 					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 					continue; // this will go directly to 
 				}
 				global_playing_clients_counter++;
@@ -148,7 +159,7 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 				if (flag_no_players_continue == true) {
 					global_playing_clients_counter--;
 					SendRes = SendString(SERVER_NO_OPPONENTS, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 					continue;
 				}
 
@@ -165,19 +176,22 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 				// SERVER_INVITE:<other client username>
 				SendRes = SendString("ENTER HERE !!!!", *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 				// free built line
 
 
 
 
 				SendRes = SendString(SERVER_SETUP_REQUSET, *t_socket);
-				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+				if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 				if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
-					SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
+					char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+					SendRes = SendString(string, *t_socket);
+					free(string);
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 					global_connected_clients_counter--;
 					global_playing_clients_counter--;	//  not supposed to ever happen
 														// check what to close here
@@ -188,14 +202,17 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 				while (true) {
 					SendRes = SendString(SERVER_PLAYER_MOVE_REQUEST, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 
 
 					RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 					if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
 					if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
-						SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
+						char* string = writeMessage("WRONG_INPUT", NULL, NULL);
+						SendRes = SendString(string, *t_socket);
+						free(string);
+						if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 						// ?global_connected_clients_counter--;
 						// ?global_playing_clients_counter--;
 						// graceful close ?. close this thread.
@@ -206,11 +223,11 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 					free(AcceptedStr);
 					//SERVER_GAME_RESULTS + params
 					SendRes = SendString(" ENTER HERE ", *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 					// free allocation of SERVER_GAME_RESULTS + params
 
 					SendRes = SendString(SERVER_DRAW, *t_socket);
-					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
+					if (SendCheck(SendRes, *t_socket) != STATUS_CODE_SUCSESS) { Close_Socket(t_socket); Close_WinSock(); return STATUS_CODE_FAILURE; }
 
 					//	 if win
 					//	{

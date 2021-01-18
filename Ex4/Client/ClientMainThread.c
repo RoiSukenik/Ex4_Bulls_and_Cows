@@ -104,6 +104,9 @@ static DWORD RecvDataThread(void)
 		else if (strstr(AcceptedStr, SERVER_OPPONENT_QUIT) != NULL) {
 			printf("Opponent quit.\n");
 		}
+		else if (strstr(AcceptedStr, WRONG_INPUT) != NULL) {
+			printf("Wrong Input Was given\n");
+		}
 		else {
 			printf("did not recieve an expected message_type.\n");
 		}
@@ -148,7 +151,7 @@ static DWORD SendDataThread(void)
 			return STATUS_CODE_SUCCESS;
 		}
 		else {
-			if (strlen(SendStr) != 4) { printf("tryin to send wierd thing FIXME: %s\n",SendStr); }
+			if (strlen(SendStr) != 4) { printf("trying to send wierd thing FIXME: %s\n",SendStr); }
 			char* send_me = NULL;
 			if (global_client_state == SETUP) {
 				send_me = CreateClientSend_one_Param(CLIENT_SETUP, SendStr);

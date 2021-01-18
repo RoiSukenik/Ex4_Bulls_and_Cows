@@ -147,6 +147,7 @@
     <ClCompile Include="..\Shared\NetworkInterface.c" />
     <ClCompile Include="..\Shared\SocketSendRecvTools.c" />
     <ClCompile Include="bulls_and_cows_logic.c" />
+    <ClCompile Include="FileHandling.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="WorkManger.c" />
   </ItemGroup>
@@ -155,6 +156,7 @@
     <ClInclude Include="..\Shared\NetworkInterface.h" />
     <ClInclude Include="..\Shared\SocketSendRecvTools.h" />
     <ClInclude Include="bulls_and_cows_logic.h" />
+    <ClInclude Include="FileHandling.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="WorkManager.h" />
   </ItemGroup>

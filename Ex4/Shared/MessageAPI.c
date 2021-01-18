@@ -70,7 +70,7 @@ char** MessageParams(char* string)
 
 }
 //dont forget to free memory
-char* writeMessage(char* MessageType, char** MessageParams)
+char* writeMessage(char* MessageType, char** MessageParams,char* other)
 {
 	errno_t retval;
 	size_t buffer = snprintf(NULL, 0, MessageType) + 1;
@@ -82,6 +82,20 @@ char* writeMessage(char* MessageType, char** MessageParams)
 	retval = sprintf_s(message, buffer,"%s", MessageType);
 	int paramLength = sizeof(MessageParams) / sizeof(MessageParams[0]);
 	int i;
+	if (MessageParams == NULL)
+	{
+		buffer = snprintf(NULL, 0, "%s\n", message) + 1;
+		message = realloc(message, buffer);
+		sprintf_s(message, buffer, "%s\n", message);
+		return message;
+	}
+	if (MessageType == SERVER_DENIED)
+	{
+		buffer = snprintf(NULL, 0, "%s:%s\n", message,other) + 1;
+		message = realloc(message, buffer);
+		sprintf_s(message, buffer, "%s\n", message);
+		return message;
+	}
 	for ( i = 0; i < paramLength; i++)
 	{
 		if (i == 0)
