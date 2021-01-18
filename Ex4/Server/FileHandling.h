@@ -10,7 +10,7 @@
 #define STATUS_CODE_SUCSESS		0
 #define WAIT_15_SECONDS			150000
 #define MIN_READ_SIZE			0
-#define MAX_STR_LEN				500
+#define MAX_STR_LEN				55
 
 
 

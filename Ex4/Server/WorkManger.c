@@ -268,16 +268,11 @@ char* synced_blocking_read_commutication(char* username, char* content) {
 			char* messageUserName = MessageType(tasked_string);
 			if (strcmp(username, messageUserName) != 0)
 			{
-
+				content = MessageParams(tasked_string)[0];
+				local_read = true;
+				global_readme = false;
 			}
-			// if its not me{
-
-				//other_client_userName = // read content
-
-			local_read = true;
-			global_readme = false;
-			// }//else do nothing
-		}	//else do nothing
+		}
 
 		if (!ReleaseMutex(Mutex_readfile)) { printf("Release Mutex error: %d\n", GetLastError()); return NULL; }
 	}
