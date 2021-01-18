@@ -81,21 +81,25 @@ static int FindFirstUnusedThreadSlot()
 }
 
 static DWORD ServiceThread(SOCKET* t_socket) {
-	printf("im in");
+	
 	TransferResult_t SendRes;
 	TransferResult_t RecvRes;
+	SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
 	char userName[MAX_USER_NAME_LEN];
 	char* AcceptedStr = NULL;
 	// recieve CLIENT_REQUEST
 		RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 		if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-		if (strstr(AcceptedStr, CLIENT_REQUEST) == NULL) {
-			printf("Error_1\n");
+		if (strcmp(MessageType(AcceptedStr), CLIENT_REQUEST) != 0) {
+			SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
 			global_connected_clients_counter--;
 			// print error close connection ?	
 			// graceful close ?
 		}
 	// save username and free
+		char** params = MessageParams(AcceptedStr);
+		strcpy_s(userName,sizeof(userName), params[0]);
+		freeParamList(params);
 		free(AcceptedStr);
 
 	// send SERVER_APPROVED message
@@ -110,13 +114,13 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 			// recieve CLIENT_VERSUS or CLIENT_DISCONNECT
 				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				if (strstr(AcceptedStr, CLIENT_DISCONNECT) != NULL) {
+				if (strcmp(MessageType(AcceptedStr), CLIENT_DISCONNECT) == 0) {
 					global_connected_clients_counter--;
 					// graceful close ?. close this thread.
 				}
-				else if (strstr(AcceptedStr, CLIENT_VERSUS) == NULL)
+				else if (strcmp(MessageType(AcceptedStr), CLIENT_VERSUS) != 0)
 				{
-					printf("Error_2\n");
+					SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
 					global_connected_clients_counter--;
 					// did not get the expected client versus, close everything !
 				}
@@ -172,8 +176,8 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 				RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 				if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-				if (strstr(AcceptedStr, CLIENT_SETUP) == NULL) {
-					printf("Error_3\n");
+				if (strcmp(AcceptedStr, CLIENT_SETUP) != 0) {
+					SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
 					global_connected_clients_counter--;
 					global_playing_clients_counter--;	//  not supposed to ever happen
 														// check what to close here
@@ -190,8 +194,8 @@ static DWORD ServiceThread(SOCKET* t_socket) {
 
 					RecvRes = ReceiveString(&AcceptedStr, *t_socket);
 					if (RecvCheck(RecvRes, *t_socket, AcceptedStr) != STATUS_CODE_SUCSESS) { return STATUS_CODE_FAILURE; }
-					if (strstr(AcceptedStr, CLIENT_PLAYER_MOVE) == NULL) {
-						printf("Error_4\n");
+					if (strcmp(AcceptedStr, CLIENT_PLAYER_MOVE) != 0) {
+						SendRes = SendString(writeMessage("Wrong Input", NULL), *t_socket);
 						// ?global_connected_clients_counter--;
 						// ?global_playing_clients_counter--;
 						// graceful close ?. close this thread.
